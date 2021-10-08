@@ -26,6 +26,5 @@ BeanCurrentlyInCreationException异常，对于创建完成的Bean会将其从�
 
 
 
-
 一级可以吗？
 是否可以关闭循环依赖？
