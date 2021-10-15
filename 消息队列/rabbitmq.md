@@ -226,7 +226,7 @@ public class RabbitConfig implements RabbitTemplate.ConfirmCallback, RabbitTempl
 
 
 
-
+https://mp.weixin.qq.com/s/5szA0KBpFn9G3DeS9C0U3w
 
 
 
