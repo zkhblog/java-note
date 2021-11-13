@@ -1,0 +1,1 @@
+ImportBeanDefinitionRegistrar：实现该接口将自定义的组件添加到IOC容器中。
