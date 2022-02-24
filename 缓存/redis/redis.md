@@ -113,9 +113,21 @@ info replication
 redis-sentinel ...sentinel.conf
 **问题：如果之前的master重启回来，不会造成双master冲突，之前的master会变成slave加入集群中**
 
+# 使用场景
+
+
+# Lua脚本
+①`EVAL`执行一段lua脚本，每次都需要将完整的lua脚本传递给redis服务器  
+②`SCRIPT LOAD`将一段lua脚本缓存到redis中并返回一个tag串，并不会执行  
+③`EVAL SHA`执行一个脚本，不过传入参数是②中返回的tag，节省网络带宽  
+④`SCRIPT EXISTS`判断②返回的tag串是否存在服务器中  
+⑤`SCRIPT FLUSH`清除服务器上的所有缓存的脚本  
+⑥`SCRIPT KILL`杀死正在运行的脚本  
+⑦`SCRIPT DEBUG`设置调试模式，可设置同步、异步、关闭，同步会阻塞所有请求  
 
 
 
+https://www.jb51.net/article/155720.html
 
 
 
