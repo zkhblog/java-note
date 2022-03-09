@@ -45,3 +45,44 @@ SpringSecurity 采用的是责任链的设计模式，它有一条很长的过�
 
 https://www.cnblogs.com/hello-shf/p/10800457.html
 待验证问题：登录后，成功的情况下，为什么会报405错误，但是浏览器里却可以直接访问/success.html
+
+
+# 基于角色或权限进行访问控制
+在配置文件中，通过以下几个方法指定访问资源需要什么样的角色或权限。主体拥有的角色或权限是在认证过程中给其加上的。  
+1、hasAuthority 方法  
+2、hasAnyAuthority 方法  
+3、hasRole 方法  
+4、hasAnyRole 方法  
+注意配置文件中不需要添加”ROLE_“，因为上述的底层代码会自动添加与之进行匹配，而在认证过程中返回用户对象的时候，需要加上  
+http.authorizeRequests()
+    .antMatchers("/find").hasRole("admin")
+return new User(userInfo.getUserName(),userInfo.getPassWord(),AuthorityUtils.commaSeparatedStringToAuthorityList("delete,ROLE_admin"))
+
+注解版权限控制：
+1 、@Secured  
+前提：@EnableGlobalMethodSecurity(securedEnabled=true)  
+功能：判断是否具有角色，另外需要注意的是这里匹配的字符串需要添加前缀"ROLE_"。  
+用法：@Secured({"ROLE_normal","ROLE_admin"})  
+
+2、@PreAuthorize  
+前提：@EnableGlobalMethodSecurity(prePostEnabled = true)  
+功能：注解适合进入方法前的权限验证， @PreAuthorize 可以将登录用户的 roles/permissions 参数传到方法中。  
+用法：@PreAuthorize("hasAnyAuthority('menu:system')")  
+
+3、@PostAuthorize  
+前提：@EnableGlobalMethodSecurity(prePostEnabled = true)  
+功能：@PostAuthorize 注解使用并不多，在方法执行后再进行权限验证，适合验证带有返回值的权限  
+用法：@PostAuthorize("hasAnyAuthority('menu:system')")  
+
+4、@PostFilter  
+功能：权限验证之后对数据进行过滤，留下用户名是 admin1 的数据  
+用法：@PostFilter("filterObject.username == 'admin1'")  
+
+5、@PreFilter  
+功能：进入控制器之前对数据进行过滤  
+用法：@PreFilter(value = "filterObject.id%2==0")  
+
+权限表达式  
+https://docs.spring.io/springsecurity/site/docs/5.3.4.RELEASE/reference/html5/#el-access  
+
+
