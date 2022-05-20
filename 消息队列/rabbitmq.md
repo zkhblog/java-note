@@ -1,97 +1,161 @@
-# 一 消息应答
-
-1、消费者在接收到消息并处理后，告诉rabbitmq它已经处理了，rabbitmq可以把该消息删除了。 2、消息应答的方法 用于肯定确认： channel.basicAck(deliveryTag,multiple)
-。multiple的true代表批量应答channel上未应答的消息，false代表只应答指定tag的消息。 用于否定确认： channel.basicNack(deliveryTag,multiple,requeue)
-。第三个参数如果设置为true，则消息重新回到queue，broker会重新发送该消息给消费端。 channel.basicReject()。与channel.basicNack()相比少一个参数，不处理该消息了直接拒绝，可以将其丢弃了。
-3、消息重新入队 如果消费者由于某些原因失去连接（其通道关闭，连接已关闭或TCP连接丢失），导致消息未发送ACK确认，Rabbit MQ了解到消息未完全处理，
+# 基础特性
+## 消息应答
+1、消费者在接收到消息并处理后，告诉rabbitmq它已经处理了，rabbitmq可以把该消息删除了。  
+2、消息应答的方法 用于肯定确认： channel.basicAck(deliveryTag,multiple)。
+multiple的true代表批量应答channel上未应答的消息，false代表只应答指定tag的消息。  
+用于否定确认：  
+①channel.basicNack(deliveryTag,multiple,requeue)。第三个参数如果设置为true，则消息重新回到queue，broker会重新发送该消息给消费端。  
+②channel.basicReject()，与channel.basicNack()相比少一个参数，不处理该消息了直接拒绝，可以将其丢弃了。  
+3、消息重新入队：如果消费者由于某些原因失去连接（其通道关闭，连接已关闭或TCP连接丢失），导致消息未发送ACK确认，Rabbit MQ了解到消息未完全处理，
 并将对其重新排队。如果此时其他消费者可以处理，它将很快将其重新分发给另一个消费者。这样，即使某个消费者偶尔死亡， 也可以确保不会丢失任何消息。
 
-# 三 RabbitMQ不公平分发
+## 持久化
+1 队列实现持久化 在声明队列的时候把durable参数设置为持久化  
+声明的时候指定队列持久化  
+2 消息实现持久化 让消息实现持久化需要修改消息生产者代码，添加Message.PERSISTENT_TEXT_PLAIN这个属性  
+在MessageProperties.PERSISTENT_TEXT_PLAIN添加属性    
+3 交换机持久化
 
+## RabbitMQ不公平分发
 channel.basicQos(1);
 
-# 四 RabbitMQ预取值
+## RabbitMQ预取值
+因为消息的发送是异步的，并且消费者的手动确认本质上也是异步的，所以channel上肯定不止只有一个消息。因此希望开发人员能限制未确认的消息缓冲区的大小，通过使用basic.ops方法设置“预取值”来完成。  
+该值定义通道上允许的未确认消息的最大数量。 一旦数量达到配置的数量，RabbitMQ 将停止在通道上传递更多消息，除非至少有一个未处理的消息被确认，
 
-因为消息的发送是异步的，并且消费者的手动确认本质上也是异步的，所以channel上肯定不止只有一个消息。因此希望开发人员
-能限制未确认的消息缓冲区的大小，通过使用basic.ops方法设置“预取值”来完成。该值定义通道上允许的未确认消息的最大数量。 一旦数量达到配置的数量，RabbitMQ 将停止在通道上传递更多消息，除非至少有一个未处理的消息被确认，
+## TTL
+既可以给消息设置TTL属性，又可以给队列设置TTL属性。如果同时配置，较小的值将会被使用。  
+1、如果设置了队列的TTL属性，那么一旦消息过期，就会被丢弃，如果配置了死信队列，就会被丢到死信队列中，使用参数：x-message-ttl，单位：ms  
+```
+@Bean
+public Queue ttlQueue() {  
+    Map<String,Object> map = new HashMap<>();
+    map.put("x-message-ttl",5000); 
+  
+    return new Queue("ttl_queue", true,false,false,args);
+}
+```
+2、如果设置了消息的TTL属性，那么一旦消息过期，也不一定会被丢弃，因为消息是否过期是在即将投递到消费者之前判定的，如果当前队列有严重的消息积压情况，则已过期的消息也许还能存活较长时间
+```
+// 消息加工类，可以针对消息进行特殊处理
+// 单位：ms
+MessagePostProcessor processor = new MessagePostProcessor() {
+    @Override
+    public Message postProcessMessage(Message message) throws AmqpException {
+        // 设置消息的编码格式
+        message.getMessageProperties().setContentEncoding("UTF-8");
+        
+        // 设置消息5秒后过期
+        message.getMessageProperties().setExpiration("5000");
+ 
+        // 设置消息优先级 （优先级分为消息优先级和队列优先级）
+        // ——队列优先级高的会先被处理，消息优先级高的会先被消费
+        message.getMessageProperties().setPriority(5);
+ 
+        // 设置消息持久化
+        message.getMessageProperties().setDeliveryMode(MessageDeliveryMode.PERSISTENT);
+        return message;
+    }
+}
+```
 
-# 五 如何处理异步未确认消息？？？
-
-最好的解决方案就是把未确认的消息放到一个基于内存的能被发布线程访问的队列，比如说用ConcurrentLinkedQueue这个队列在 Confirm callbacks与发布线程之间进行消息的传递。
-
-# 六 交换机类型
-
-1、默认（或无名）交换机（常用""空字符串代表） 2、直连交换机（direct） 3、扇出交换机（fanout） 4、主题交换机（Topic）
-
-# 七 TTL
-
-既可以给消息设置TTL属性，又可以给队列设置TTL属性。如果同时配置，较小的值将会被使用。 1、如果设置了队列的TTL属性，那么一旦消息过期，就会被丢弃，如果配置了死信队列，就会被丢到死信队列中。
-使用参数：x-message-ttl，单位：ms 2、如果设置了消息的TTL属性，那么一旦消息过期，也不一定会被丢弃，因为消息是否过期是**在即将投递到消费者之前判定**的， new MessagePostProcessor(){ ...
-message.getMessageProperties.setExpiration("1000"); // 单位：ms ... } 注意：如果当前队列有严重的消息积压情况，则已过期的消息也许还能存活较长时间；
 另外，还需要注意的一点是，如果不设置 TTL，表示消息永远不会过期，如果将 TTL 设置为 0，则表示除非此时可以直接投递该消息到消费者， 否则该消息将会被丢弃。
 
-# 八 死信队列
+# 高级队列
+## 死信队列
+正常消息变成死信的条件：  
+1、消息ttl过期 AMQP.BasicProperties properties = new AMQP.BasicProperties().builder().expiration("10000").build();  
+2、队列达到最大长度 params.put("x-max-length",6);（设置正常队列长度的限制）  
+3、消息被拒 channel.basicNack(); channel.basicReject(delivery.getEnvelope().getDeliveryTag(), false)，并且设置 requeue=false ，代表拒绝重新入队，否则如果配置了死信交换机将发送到死信队列中
 
-正常消息变成死信的条件： 1、消息ttl过期 AMQP.BasicProperties properties = new AMQP.BasicProperties().builder().expiration("10000")
-.build(); 2、队列达到最大长度 params.put("x-max-length",6);（设置正常队列长度的限制） 3、消息被拒 channel.basicNack(); channel.basicReject(
-delivery.getEnvelope().getDeliveryTag(), false); 并且设置 requeue=false ，代表拒绝重新入队，否则如果配置了死信交换机将发送到死信队列中
-***做法：***
-给队列设置参数：x-dead-letter-exchange和x-dead-letter-routing-key
+## 延迟队列
+用来存放在指定时间被处理的元素的队列。队列内部是有序的。  
+设置队列的TTL属性，可以保证消息被延迟消费，但是如果要实现消息粒度上的TTL，即通过给消息指定TTL，实现任意时间延迟消费，
+这里面存在的问题就是消息可能并不会按时“死亡”，因为rabbitmq只会检查第一个消息是否过期，如果过期则丢弃或被丢到死信队列，如果第一个消息的延迟时长很长，而第二个消息的延迟时长很短，其实第二个消息并不会优先得到执行。
+需要安装延迟队列插件rabbitmq_delayed_message_exchange（可以让消息在设置的TTL时间及时死亡），并解压到插件目录，使用如下命令重启mq
+```
+/usr/lib/rabbitmq/lib/rabbitmq_server-3.8.8/plugins/rabbitmq-plugins enable 插件名
+```
 
-# 九 延迟队列
+## 备份交换机
+备份交换机可以理解为 RabbitMQ 中交换机的“备胎”，当我们为某一个交换机声明一个对应的备份交换机时，就是为它创建一个备胎，当交换机接收到一条不可路由消息时，
+将会把这条消息转发到备份交换机中，由备份交换机来进行转发和处理，通常备份交换机的类型为 Fanout ，这样就能把所有消息都投递到与其绑定的队列中，然后我们在备份交换机下绑定一个队列，
+这样所有那些原交换机无法被路由的消息，就会都进入这个队列了。当然，我们还可以建立一个报警队列，用独立的消费者来进行监测和报警。
+![img.png](images/备份交换机理论图.png)
+```
+ //声明确认 Exchange 交换机的备份交换机
+ @Bean("confirmExchange")
+ public DirectExchange confirmExchange(){
+    ExchangeBuilder exchangeBuilder =
+    ExchangeBuilder.directExchange(CONFIRM_EXCHANGE_NAME)
+    .durable(true)
+    //设置该交换机的备份交换机
+    .withArgument("alternate-exchange", BACKUP_EXCHANGE_NAME);
+    return (DirectExchange)exchangeBuilder.build();
+ }
+```
+> 生产者回退消息与备份交换机同时开启的时候，不可路由的消息会被发送到备份交换机
 
-用来存放在指定时间被处理的元素的队列。队列内部是有序的。
+## 优先级队列
+①队列设置优先级  
+params.put("x-max-priority",10);  
+②消息设置优先级  
+AMQP.BasicProperties properties = new AMQP.BasicProperties().builder().priority(5).build();
 
-## 问题
+## 惰性队列
+概念：尽可能将消息存入磁盘，在消费者消费时才会被加载到内存中，即支持更多的消息存储。  
+队列具有两种模式：default和lazy。  
+params.put("x-queue-mode","lazy");  
 
-1、设置队列的TTL属性，可以保证消息被延迟消费，但是如果要实现消息粒度上的TTL，即通过给消息指定TTL，实现任意时间延迟消费，
-这里面存在的问题就是消息可能并不会按时“死亡”，因为rabbitmq只会检查第一个消息是否过期，如果过期则丢弃或被丢到死信队列， 如果第一个消息的延迟时长很长，而第二个消息的延迟时长很短，其实第二个消息并不会优先得到执行。
+# 重要知识点
+## 消息消费的两种模式
+①推模式  
+MQ主动将消息推送给消费者，这种方式需要消费者设置一个缓冲区去缓存消息，适合持续获得消息的场景  
+```
+ // 当监听的队列有消息时，就会触发该方法
+ @RabbitListener(queues = RabbitConfig.JAVABOY_QUEUE_NAME)
+ public void handle(String msg) {
+    System.out.println("msg = " + msg);
+ }
+```
 
-## 解决办法
+②拉模式  
+消费者主动从MQ拉取消息。消费一条消息  
+```
+Object o = rabbitTemplate.receiveAndConvert(RabbitConfig.JAVABOY_QUEUE_NAME);
+System.out.println("o = " + new String(((byte[]) o),"UTF-8"));
+```
 
-通过Rabbit MQ插件实现消息粒度上的TTL，可以让消息在设置的TTL时间及时死亡。
-
-# 其他
+## 幂等性
+消费者已经成功消费消息，在给MQ返回ACK时网络中断，故MQ未收到确认消息，该消息会重新发给其他消费者，或在网络重连后再次发送给该消费者，但实际上该消费者
+已成功消费该条消息，造成了消息的重复消息。  
+解决办法：利用redis执行setNx命令，从而实现不重复消费
 
 ## 延迟队列的选择
-
 延迟队列的选择有Java的DelayQueue、Redis的zSet、Quartz、Kafka的时间轮等。
 
 ## 消费端限流
-
 1、确保ACK机制为手动确认； 2、perfetch=1；（表示消费端每次从MQ拉取一条消息来消费，直到手动确认消费完毕后，才会继续拉取下一条消息）
 
 ## 消息追踪
-
 1、FireHose 机制是将生产者投递给rabbitmq的消息，rabbitmq投递给消费者的消息a按照指定的格式发到默认的exchange上。
 这个默认的交换机的名称是amqp.rabbitmq.trace，它是一个topic类型的交换机。 开启FireHose的命令：rabbitmqctl trace_on 关闭FireHose的命令：rabbitmqctl
 trace_off  
 2、rabbitmq_tracing 启用插件：rabbitmq-plugins enable rabbitmq_tracing
 
-# 高级篇
-
-# 十 消息的可靠投递
-
-## 10.1 持久化
-
-1、队列实现持久化 在声明队列的时候把durable参数设置为持久化  
-2、消息实现持久化 让消息实现持久化需要修改消息生产者代码，添加Message.PERSISTENT_TEXT_PLAIN这个属性  
-3、交换机持久化
-
-## 10.2 手动应答（ACK）
-
-表示消费端收到消息之后的确认方式 1、自动确认：acknowledge="none"
-2、手动确认：acknowledge="manual"
-3、根据异常情况确认：acknowledge="auto"（，使用麻烦，不常用）
-
+# 消息的可靠投递
 要确保消息成功发送，只需做好三件事即可：  
 1、确认消息到达Exchange  
 2、确认消息到达Queue  
-3、开启定时任务，定时投递那些发送失败的消息
+3、开启定时任务，定时投递那些发送失败的消息（自己实现）
 
-## 10.3 开启事务机制（事务模式效率低下）
+## 手动应答（ACK）
+手动确认：acknowledge="manual"
 
-首先需要提供一个事务管理器
+## 开启事务机制（事务模式效率低下）
+<details>
+<summary>点此展开</summary>
+首先需要提供一个事务管理器  
 
 ```
 @Bean
@@ -120,19 +184,36 @@ public class MsgService {
 生产者发送消息的步骤：  
 1、客户端发出请求，将信道设置为事务模式。  
 2、服务端给出回复，同意将信道设置为事务模式。  
-3、客户端发送消息。 （除了第三步是本来就有的，其他几个步骤都是平白无故多出来的） 4、客户端提交事务。  
+3、客户端发送消息。 （除了第三步是本来就有的，其他几个步骤都是平白无故多出来的）  
+4、客户端提交事务。  
 5、服务端给出响应，确认事务提交。
 
-## 10.4 发布确认模式
+</details>
 
-生产者将信道设置成confirm模式，一旦信道进入confirm模式，所有在该信道上面发布的消息都将会被指派一个唯一的ID。 一旦消息被投递到所有匹配的队列之后，broker就会发送一个确认给生产者(包含消息的唯一 ID)
-，这就使得生产者知道消息已经正确 到达目的队列了，如果消息和队列是可持久化的，那么确认消息会在将消息写入磁盘之后发出，broker 回传给生产者的确认消息中 delivery-tag 域包含了确认消息的序列号，此外 broker
-也可以设置basic.ack 的 multiple 域，表示到这个序列号之前的所有消息 都已经得到了处理。在Rabbit MQ重启期间，生产者消息投递失败，导致消息丢失，可以开启发布确认模式。 1、confirm模式
-①在仅开启生产者确认机制的情况下，交换机接收到消息后，会直接给消息生产者发送确认消息。 做法： spring.rabbitmq.publisher-confirm-type=correlated（发布消息成功到交换机后会触发回调方法）
-implements RabbitTemplate.confirmCallback {}（交换机的确认回调接口） 2、return模式 ②但是发现消息不可路由，那么该消息会被直接丢弃，此时生产者是不知道消息被丢弃这个事件的。 做法：
-spring.rabbitmq.publisher-returns=true（此配置表示一旦路由错误，交换机会回退消息给生产者） implements RabbitTemplate.ReturnCallback()
-（交换机的回退接口，即在消息传递过程中不可达目的地时将消息返回给生产者）
+## 发布确认模式
+概述：  
+生产者将信道设置成confirm模式，一旦信道进入confirm模式，所有在该信道上面发布的消息都将会被指派一个唯一的ID。 一旦消息被投递到所有匹配的队列之后，broker就会发送一个确认给生产者(包含消息的唯一 ID)，这就使得生产者知道消息已经正确 到达目的队列了。  
+如果消息和队列是可持久化的，那么确认消息会在将消息写入磁盘之后发出，broker 回传给生产者的确认消息中 delivery-tag 域包含了确认消息的序列号，此外 broker也可以设置basic.ack 的 multiple 域，表示到这个序列号之前的所有消息都已经得到了处理。  
 
+种类：  
+①单个确认发布（同步）  
+发布一个消息之后只有它被确认，后续的消息才能继续发布，waitForConfirmsOrDie(long)这个方法只有在消息被确认的时候才被返回，如果在指定时间内没有确认将抛出异常  
+所以发布速度特别慢，并且发布的消息没有确认会阻塞后续消息的发布  
+②批量确认发布（同步）  
+缺点就是当出现问题时，不知道是哪个消息出现问题导致的，所以必须整批保存在内存中，以便后续重新发送  
+③异步确认发布  
+利用回调函数来实现消息的可靠传递  
+
+具体实现：  
+①配置开启消息发送方确认机制  
+```
+// 发布消息成功到交换机后会触发回调方法
+spring.rabbitmq.publisher-confirm-type=correlated
+// 此配置表示一旦路由错误，交换机会回退消息给生产者
+spring.rabbitmq.publisher-returns=true（配置消息到达队列的回调）
+```
+
+②开启监听  
 ```
 @Configuration
 public class RabbitConfig implements RabbitTemplate.ConfirmCallback, RabbitTemplate.ReturnsCallback {
@@ -158,7 +239,11 @@ public class RabbitConfig implements RabbitTemplate.ConfirmCallback, RabbitTempl
 
     @PostConstruct      // 因为两个接口的实现类是rabbitTemplate对象的内部属性，所以要使用特殊的注入方式，将目标对象注入给rabbitTemplate对象
     public void initRabbitTemplate() {
+        // 设置服务器端确认回调（成功与否都会回调）
         rabbitTemplate.setConfirmCallback(this);
+        
+        // 设置不可路由到目的队列的回调
+        rabbitTemplate.setMandatory(true);
         rabbitTemplate.setReturnsCallback(this);
     }
 
@@ -178,9 +263,36 @@ public class RabbitConfig implements RabbitTemplate.ConfirmCallback, RabbitTempl
 }
 ```
 
-***注意事项：*** 生产者回退消息与备份交换机同时开启的时候，不可路由的消息会被发送到备份交换机。
+> 如何处理异步未确认消息：把未确认消息放到一个基于内存的能被发布线程访问的队列，比如说用concurrentLinkedQueue这个队列在confirm callbacks与发布线程之间进行消息的传递  
 
-# 十三 自动补偿机制（消费者处理消息）
+# 失败重试
+## 自带重试机制
+如果发送方连不上MQ，Spring Boot中有相应的重试机制，这个重试机制和MQ没有关系，利用的是Spring的retry机制完成
+```
+# 开启重试机制
+spring.rabbitmq.template.retry.enabled=true
+# 重试起始间隔时间
+spring.rabbitmq.template.retry.initial-interval=1000ms
+# 最大重试次数
+spring.rabbitmq.template.retry.max-attempts=10
+# 最大重试间隔时间
+spring.rabbitmq.template.retry.max-interval=10000ms
+# 间隔时间乘数。（这里配置间隔时间乘数为 2，则第一次间隔时间 1 秒，第二次重试间隔时间 2 秒，第三次 4 秒，以此类推）
+spring.rabbitmq.template.retry.multiplier=2
+```
+
+## 业务重试
+主要针对消息没有到达交换机的情况，如果消息没有到达交换机，触发生产者的确认回调机制  
+① 建表
+![img.png](images/发送到MQ的消息记录表.png)
+status：表示消息的状态，有三个取值，0，1，2 分别表示消息发送中、消息发送成功以及消息发送失败。  
+tryTime：表示消息的第一次重试时间（消息发出去之后，在 tryTime 这个时间点还未显示发送成功，此时就可以开始重试了）。  
+count：表示消息重试次数。  
+② 在消息发送的时候，我们就往该表中保存一条消息发送记录，并设置状态 status 为 0，tryTime 为 1 分钟之后。  
+③ 在 confirm 回调方法中，如果收到消息发送成功的回调，就将该条消息的 status 设置为1（在消息发送时为消息设置 msgId，在消息发送成功回调时，通过 msgId 来唯一锁定该条消息）。
+④ 另外开启一个定时任务，定时任务每隔 10s 就去数据库中捞一次消息，专门去捞那些 status 为 0 并且已经过了 tryTime 时间记录，把这些消息拎出来后，首先判断其重试次数是否已超过 3 次，如果超过 3 次，则修改该条消息的 status 为 2，表示这条消息发送失败，并且不再重试。对于重试次数没有超过 3 次的记录，则重新去发送消息，并且为其 count 的值+1。
+
+# 自动补偿机制（消费者处理消息）
 
 在RabbitMQ里，如果消费者在处理消息时，业务逻辑出现异常，默认会执行补偿机制（也就是消息重试机制）。如果业务逻辑出现异常，是不会消费消息的。  
 原理：  
@@ -227,7 +339,6 @@ public class RabbitConfig implements RabbitTemplate.ConfirmCallback, RabbitTempl
 
 
 https://mp.weixin.qq.com/s/5szA0KBpFn9G3DeS9C0U3w
-
 
 
 
