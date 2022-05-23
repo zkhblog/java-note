@@ -30,3 +30,7 @@ public class MyWebApplicationInitializer implements WebApplicationInitializer {
 ```
 
 
+__outline__beanFactory的三个子接口bean组件实现aware接口，可以装配底层的一些组件，此处利用到的是回调机制，ApplicationContextAwareProcessor的
+postProcessBeforeInitialization实现了此机制Bean的功能增强全部是由BeanPostProcessor + InitializaingBean 两个接口完成的FactoryBean和普通Bean的差别，
+在遍历所有的beanNames的时候，两者的执行逻辑
+
