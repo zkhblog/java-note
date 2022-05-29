@@ -115,7 +115,7 @@ AOF重写的基础大小默认值64M太小了，可以设到5G以上。默认超
 如果不enable aof，仅靠master-slave replication实现高可用性也可以。能省掉一大笔IO也减少了rewrite时带来的系统波动。代价是如果master/slave
 同时倒掉，会丢失十几分钟的数据，启动脚本也要比较两个master/slave中的RDB文件，载入较新的那个。
 
-# 三 redis的复制
+# redis的复制
 【概念】  
 也就是我们所说的主从复制，主机数据更新后根据配置和策略，自动同步到备机的master/slave机制，master以写为主，slave以读为主。  
 可以实现读写分离和容灾恢复  
@@ -158,7 +158,6 @@ redis-sentinel ...sentinel.conf
 **问题：如果之前的master重启回来，不会造成双master冲突，之前的master会变成slave加入集群中**
 
 # 使用场景
-
 【分布式锁】  
 第一步：  
 使用redis实现分布式锁，首先需要保证加锁【①+②】和删除锁【③+④】的原子性  
@@ -186,7 +185,6 @@ lock.lock(10,TimeUnit.SECONDS)
 1）如果我们传递了锁的超时时间，就发送给redis执行脚本，进行占锁，默认超时时间就是我们指定的时间  
 2）如果我们未指定锁的超时时间，就使用30*1000【LockWatchDogTimeOut看门狗的默认时间】  
 
-
 # Lua脚本
 ①`EVAL`执行一段lua脚本，每次都需要将完整的lua脚本传递给redis服务器  
 ②`SCRIPT LOAD`将一段lua脚本缓存到redis中并返回一个tag串，并不会执行  
@@ -196,7 +194,34 @@ lock.lock(10,TimeUnit.SECONDS)
 ⑥`SCRIPT KILL`杀死正在运行的脚本  
 ⑦`SCRIPT DEBUG`设置调试模式，可设置同步、异步、关闭，同步会阻塞所有请求  
 
+# redis内存相关
+1 如何查看内存大小？在配置文件中的859行 ```maxmemory <bytes>```，注意此处内存大小是bytes字节类型，注意单位转换。  
+如果不设置最大内存大小或者设置最大内存大小为0，在64位操作系统下不限制内存大小，在32位操作系统下最多使用3GB内存。还可以通过```info maxmemory```命令查看redis的内存使用情况  
+一般生产上的配置：一般推荐redis设置内存为最大物理内存的四分之三。既可以通过修改配置文件的大小，也可以通过```config set maxmemory``` 内存大小进行设置
 
+2 redis过期键的删除策略：
+> redis打满了，会报错  
+> (error) OOM command not allowed when used memory > ```maxmemory```
+
+① 定时删除：即检测被设置了生存时间的key，判断是否达到过期时间，达到即删除。这样对cpu不友好，有一个定时任务时刻在消耗CPU的性能，用处理器性能去换存储空间  
+② 惰性删除：即下次访问数据时再判断是否到达过期时间，这样对内存不友好，即使很多键已经过期了，但是没有第二次访问（或者执行flushDb可以清除过期key），因此也不会被删除，导致内存中有很多的过期键，用存储空间去换处理器性能  
+③ 定期删除：上述两种方案同时使用。这是前面两种删除策略的折中：每隔一段时间执行一次删除过期键操作，并通过限制删除操作执行的**时长**和**频率**来减少删除操作对CPU时间的影响。  
+此时依然存在问题：在抽样key时，有key从来没有被抽样到，所以依然大量过期的key堆积在内存中，导致redis内存空间紧张或者很快耗尽
+
+在上述方案执行之后，如果内存达到阈值时，就会触发内存淘汰策略  
+生产上，在配置时一般使用```maxmemory-policy allkeys-lru```，命令（```config set maxmemory-policy allkeys-lru```）和修改配置文件都可
+> 内存淘汰策略（八种）  
+第一种：```noeviction```，不会驱逐任何key，在新加时会报异常（6.0.8默认）  
+第二种：```allkeys-lru```，对所有key使用LRU算法进行删除（生产上常用）  
+第三种：```volatile-lru```，对所有设置了过期时间的key使用LRU算法进行删除  
+第四种：```allkeys-random```，对所有key进行随机删除  
+第五种：```volatile-random```，对所有设置了过期时间的key随机删除  
+第六种：```volatile-ttl```，删除马上要过期的key  
+第七种：```allkeys-lfu```，对所有key使用LFU算法进行删除  
+第八种：```volatile-lfu```，对所有设置了过期时间的key使用LFU算法进行删除
+
+# LRU
+手写LRU算法？
 
 https://www.jb51.net/article/155720.html
 
