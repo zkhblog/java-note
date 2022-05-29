@@ -1,3 +1,0 @@
-1、MySQL出现幻读，要怎么优化。
-2、统计分表数据，可以使用meger存储引擎（https://www.cnblogs.com/hjw-zq/p/9804001.html）。注意分表必须是myisam。
-3、
