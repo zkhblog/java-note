@@ -1,3 +1,12 @@
+注意：
+nginx转发后，会丢失host头，造成网关不知道原host。在进行网关匹配的时候需要将头信息添加上。（网关匹配是优先匹配）
+```
+  location / {
+        proxy_pass http://gulimall;
+        proxy_set_header Host $host;
+    }
+```
+
 > ①项目上线之后，用户在访问域名的时候，访问的应该是nginx的ip，而不是服务的ip。请求到了nginx之后，如果是静态资源I（/static/**）直接在nginx中找到静态资源然后返回。
 > 如果不是静态资源（/），nginx把他upstream转交给另外一个ip，这个ip所对应的进程是网关gateway。到达网关之后，通过url信息断言判断应该转发给nacos中的哪个微服务。
 > 在给nacos之前，也可以重写url。
