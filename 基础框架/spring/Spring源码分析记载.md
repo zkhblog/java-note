@@ -1,4 +1,83 @@
+# 详细源码分析流程图见：[源码分析流程图](https://www.processon.com/)
+
+# 基础接口
+1 Resource + ResourceLoader  
+ResourceLoader接口的实现是策略模式的体现。注意ApplicationContext也间接继承了该接口  
+
+2 **BeanFactory**  
+-- HierarchicalBeanFactory          定义父子工厂  
+    我们常用的ioc容器```AnnotationConfigApplicationContext```，继承于GenericApplicationContext，该容器组合了下面的功能  
+
+-- ListableBeanFactory              能列举所有组件
+    此接口的实现是DefaultListableBeanFactory，可以提供ioc容器中的Bean定义信息相关功能，因为实现了```BeanDefinitonRegistry```  
+
+-- AutowireCapableBeanFactory       提供自动装配共功能  
+    此接口的实现类也是DefaultListableBeanFactory，也是被我们常用的ioc容器所持有  
+
+3 BeanDefinition  
+
+4 BeanDefinitionReader  
+
+5 BeanDefinitionRegistry  
+
+6 ApplicationContext  
+ioc容器持有Bean工厂，Bean工厂只是ioc容器的功能之一
+
+7 Aware  
+给普通组件装配一些Spring底层组件  
+```java
+自动装配Spring底层组件也可以如下实现  
+@Autowired
+private ApplicationContext applicationContext;
+```
+
+8 DefaultListableBeanFactory（最重要）  
+提供访问Bean、BeanDefinition等信息的功能，它被ioc容器所组合  
+
+9 DefaultSingletonBeanRegistry  
+
+10 FactoryBean和Bean  
+区别：普通Bean给容器中注册的是该Bean对象，而FactoryBean给容器中注册的是工厂Bean调用getObject()返回的对象，类型是getObjectType()指定的类型  
+应用场景：MyBatis和Spring的整合中，所用工厂Bean```SqlSessionFactoryBean```  
+
+11 
+
+# 生命周期中的后置处理器
+1 BeanFactoryPostProcessor  
+
+
+2 BeanPostProcessor  
+
+
+3 InitializingBean  
+
+4 BeanDefinitionRegistryPostProcessor  
+
+
+
+
+
 ImportBeanDefinitionRegistrar：实现该接口将自定义的组件添加到IOC容器中。
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 ```
