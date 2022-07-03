@@ -1,5 +1,6 @@
 ----------------------------------
 https://blog.csdn.net/heyutao007/article/details/50131089
+https://blog.csdn.net/lzb348110175/article/details/100773487
 
 ----------------------------------
 
@@ -19,7 +20,7 @@ Queue支持存在多个消费者，**但是对一个消息而言，只会有一�
 3.3 发布者发送到topic的消息，只有订阅了topic的订阅者才会收到消息。topic实现了发布和订阅，当你发布一个消息，所有订阅这个topic的服务都能得到这个消息，
 所以从1到N个订阅者都能得到这个消息的拷贝。
 
-# Kafka生产者数据可靠性保证
+# Kafka生产者
 ### 数据同步策略
 1 半数以上策略  
 
@@ -49,7 +50,13 @@ ack设置为-1时，至少发一次消息(AtLeast Once) + 幂等性 = Exactly On
 数据上游。开启幂等性的Producer在初始化的时候会被分配一个PID，发往同一Partition的消息会附带Sequence Number。而Broker端会对<PID,Partition,SeqNumber>做缓存，
 当具有相同主键的消息提交时，Broker只会持久化一条。但是PID重启就会发生变化，同时不同的Partition也具有不同主键，所以幂等性无法保证跨分区跨会话的Exactly Once  
 
+# Kafka消费者
+## 消费方式
 
+
+## 分区分配策略
+
+## 
 
 
 

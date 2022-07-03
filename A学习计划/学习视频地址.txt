@@ -39,10 +39,6 @@ Java面试必考点-拉钩-新浪技术专家张雷
 链接：https://pan.baidu.com/s/1UJNHrrML4458yrt9roo9tg 
 提取码：n6wz
 
-uni-app
-链接：https://pan.baidu.com/s/1OtUJs-dsIgYg5P2Xal46nQ 
-提取码：zb3b
-
 Java视频教程 Java游戏服务器端开发
 链接：https://pan.baidu.com/s/1wEuYL2P6Bw5S441dgtqbTg 
 提取码：e0qu
@@ -50,14 +46,6 @@ Java视频教程 Java游戏服务器端开发
 2019Java最新高级面试专题（分布式，性能优化，微服务，redis）
 链接：https://pan.baidu.com/s/16JHrtVjJC8DMfQVF0XLmHw 
 提取码：bu1i 
-
-RabbitMQ 完整版(慕课网)
-链接：https://pan.baidu.com/s/1DsnpSVPw36EE73Vj8PY1bg 
-提取码：uyci
-
-尚硅谷_互联网大厂高频重点面试题（第2季）
-链接：https://pan.baidu.com/s/1m9SxOQsGAtyubJkQLSu6Tw 
-提取码：84u5 
 
 一套让你精通JVM的教程
 链接：https://pan.baidu.com/s/1FMRanmhJwH60zrd6bE2Xqg 
@@ -70,3 +58,27 @@ RabbitMQ 完整版(慕课网)
 Java仿抖音短视频小程序开发 全栈式实战项目
 链接：https://pan.baidu.com/s/1PK0AGb1Nr0G5VgDsmTd4Wg 
 提取码：rz0a
+
+亿级流量电商详情页系统实战（完整版）：缓存架构+高可用服务架构+微服务架构
+（包含落地代码实操）
+链接：https://pan.baidu.com/s/1KAAYSKwYjGPVpIruKTjcTw
+提取码：l472
+
+CompletableFuture 黄老师 阿里美团双buff
+链接: https://pan.baidu.com/s/17uOaqf7TYhBCbiqkgL5Klw 提取码: v83n
+
+Java面试专题
+网盘链接：https://pan.baidu.com/s/1NGcoUOunDusr3ghl5TwIoA    提取码：lyfb
+解压码：www.itjc8.com)X3lJ&8FjwQ7s
+
+【大厂学院】
+网盘链接：https://pan.baidu.com/s/1mvo0u9XSQHsMjrDwE854eg#list/path=%2F
+提取码：ehak
+
+链接：https://pan.baidu.com/s/1Rw1zBe-rHKrQ1pBvpBYOCA
+提取码：6q14
+
+链接：https://pan.baidu.com/s/1bWVO9LNjaVFRhIHwEOA4gA
+提取码：adz0
+
+
