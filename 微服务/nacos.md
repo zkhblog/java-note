@@ -1,4 +1,8 @@
-# 配置中心管理
+# 注册中心
+
+
+# 配置中心
+## 配置中心管理
 ①命名空间：用作配置隔离。默认public。默认新增的配置都在public空间下。  
 在bootstrap.properties配置上指定需要使用哪个命名空间的配置。
 ```
@@ -16,4 +20,12 @@ spring.cloud.nacos.config.ext-config[0].data-id=redis.properties
 # 开启动态刷新配置，否则配置文件修改，工程无法感知  
 spring.cloud.nacos.config.ext-config[0].refresh=true
 ```
-最佳实践：命名空间区分业务功能，分组区分环境
+## 最佳实践
+1 命名空间区分业务功能，分组区分环境  
+2 配置中心配置数据集DataID和配置内容  
+3 开启动态刷新配置```@RefreshScope```  
+4 获取配置项的值```@Value```  
+5 优先使用配置中心的配置  
+6 使用命名空间nameSpace来创建各服务的配置  
+7 使用分组group来区分不同的环境  
+8 使用多配置集extension-configs区分不同类型的配置

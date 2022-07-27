@@ -13,18 +13,44 @@
 > 用户认证成功后，服务端生成一个token发给客户端，客户端可以放到 cookie 或 localStorage 等存储中，
 > 每次请求时带上 token，服务端收到token通过验证后即可确认用户身份。
 
-# 主要API说明
-extends WebSecurityConfigurerAdapter    配置资源访问是否受限  
-implement UserDetailsService            实现该接口可以自定义控制认证逻辑  
-PasswordEncoder
-> String encode(CharSequence rawPassword);表示把参数按照特定的解析规则进行解析  
-> boolean matches(CharSequence rawPassword, String encodedPassword);表示验证从存储中获取的编码密码与编码后提交的原始密码是否匹配。
-> 如果密码匹配，则返回 true；如果不匹配，则返回 false。第一个参数表示需要被解析的密码。第二个参数表示存储的密码。  
-> default boolean upgradeEncoding(String encodedPassword) {表示如果解析的密码能够再次进行解析且达到更安全的结果则返回 true，否则返回
-> false。默认返回 false。  
-> 
-> BCryptPasswordEncoder是官方推荐的密码解析器
+# OncePerRequestFilter
+通常被用于继承实现并在每次请求时只执行一次过滤，通过增加标记的方式来实现过滤器只被执行一次  
+```java
+// 获取当前filter的属性名称，该名称后面会被用于放到request当作key
+String alreadyFilteredAttributeName = getAlreadyFilteredAttributeName();
+// 检查当前请求是否已经有了该标记，如果有了该标记，则代表该过滤器已经执行过了
+boolean hasAlreadyFilteredAttribute = request.getAttribute(alreadyFilteredAttributeName) != null;
 
+if (skipDispatch(httpRequest) || shouldNotFilter(httpRequest)) {
+
+	// Proceed without invoking this filter...
+	filterChain.doFilter(request, response);
+}
+// 如果此过滤器已经执行过则执行下面的逻辑
+else if (hasAlreadyFilteredAttribute) {
+
+	if (DispatcherType.ERROR.equals(request.getDispatcherType())) {
+		doFilterNestedErrorDispatch(httpRequest, httpResponse, filterChain);
+		return;
+	}
+
+	// Proceed without invoking this filter...
+	filterChain.doFilter(request, response);
+}
+// 该过滤器未被执行过
+else {
+    // 在当前请求里面设置标记，key就是前面拼接的那个变量，value是true
+	request.setAttribute(alreadyFilteredAttributeName, Boolean.TRUE);
+	try {
+        // 子类实现具体过滤逻辑
+		doFilterInternal(httpRequest, httpResponse, filterChain);
+	}
+	finally {
+        // 执行完毕后移除该标记
+		request.removeAttribute(alreadyFilteredAttributeName);
+	}
+}
+```
 
 # 框架分析
 SpringSecurity 采用的是责任链的设计模式，它有一条很长的过滤器链。现在对这条过滤器链的 15 个过滤器进行说明:  
@@ -34,8 +60,8 @@ SpringSecurity 采用的是责任链的设计模式，它有一条很长的过�
 (3) `HeaderWriterFilter`：用于将头信息加入响应中。  
 (4) `CsrfFilter`：用于处理跨站请求伪造。  
 (5) `LogoutFilter`：用于处理退出登录。 
-(7) `DefaultLoginPageGeneratingFilter`：如果没有配置登录页面，那系统初始化时就会配置这个过滤器，并且用于在需要进行登录时生成一个登录表单页面。
-(8) `BasicAuthenticationFilter`：检测和处理 http basic 认证。  
+(7) `DefaultLoginPageGeneratingFilter`：如果没有配置登录页面，那系统初始化时就会配置这个过滤器，并且用于在需要进行登录时生成一个登录表单页面  
+(8) `BasicAuthenticationFilter`：检测和处理 http basic 认证  
 (9) `RequestCacheAwareFilter`：用来处理请求的缓存。  
 (10) `SecurityContextHolderAwareRequestFilter`：主要是包装请求对象 request。  
 (11) `AnonymousAuthenticationFilter`：检测 SecurityContextHolder 中是否存在Authentication 对象，如果不存在为其提供一个匿名 Authentication。  
@@ -43,28 +69,22 @@ SpringSecurity 采用的是责任链的设计模式，它有一条很长的过�
 (15) `RememberMeAuthenticationFilter`：当用户没有登录而直接访问资源时, 从 cookie 里找出用户的信息, 如果 Spring Security 能够识别出用户提供的 remember me cookie,
 用户将不必填写用户名和密码, 而是直接登录进入系统，该过滤器默认不开启。  
 
-# 核心过滤器
+### 核心过滤器
 `UsernamePasswordAuthenticationFilter`  
 用于处理基于表单的登录请求，从表单中获取用户名和密码。默认情况下处理来自 /login 的请求。从表单中获取用户名和密码时，默认使用的表单的值为 username 和 password，
 这两个值可以通过设置这个过滤器的 usernameParameter 和 passwordParameter 两个参数的值进行修改。  
 
-`FilterSecurityInterceptor`  
-
-
 `ExceptionTranslationFilter`
-处理 AccessDeniedException 和 AuthenticationException 异常。
+是个异常过滤器，用来处理在认证和授权过程中抛出的 ```AccessDeniedException``` 和 ```AuthenticationException``` 等异常  
 
 `FilterSecurityInterceptor`  
-该过滤器是过滤器链的最后一个过滤器，根据资源权限配置来判断当前请求是否有权限访问对应的资源。如果访问受限会抛出相关异常，并由 ExceptionTranslationFilter 过滤器进行捕获和处理。
-
-
-
+该过滤器在过滤器链中靠后，根据资源权限配置来判断当前请求是否有权限访问对应的资源。如果访问受限会抛出相关异常，并由 ExceptionTranslationFilter 过滤器进行捕获和处理。
 
 https://www.cnblogs.com/hello-shf/p/10800457.html
 待验证问题：登录后，成功的情况下，为什么会报405错误，但是浏览器里却可以直接访问/success.html
 
-
-# 基于角色或权限进行访问控制
+# 相关API
+### 资源访问控制相关
 在配置文件中，通过以下几个方法指定访问资源需要什么样的角色或权限。主体拥有的角色或权限是在认证过程中给其加上的。  
 1、hasAuthority 方法  
 2、hasAnyAuthority 方法  
@@ -75,7 +95,7 @@ http.authorizeRequests()
     .antMatchers("/find").hasRole("admin")
 return new User(userInfo.getUserName(),userInfo.getPassWord(),AuthorityUtils.commaSeparatedStringToAuthorityList("delete,ROLE_admin"))
 
-注解版权限控制：
+### 权限控制相关注解  
 1 、@Secured  
 前提：@EnableGlobalMethodSecurity(securedEnabled=true)  
 功能：判断是否具有角色，另外需要注意的是这里匹配的字符串需要添加前缀"ROLE_"。  
@@ -99,7 +119,17 @@ return new User(userInfo.getUserName(),userInfo.getPassWord(),AuthorityUtils.com
 功能：进入控制器之前对数据进行过滤  
 用法：@PreFilter(value = "filterObject.id%2==0")  
 
-权限表达式  
-https://docs.spring.io/springsecurity/site/docs/5.3.4.RELEASE/reference/html5/#el-access  
+# Token
+### 普通令牌
+基于redis存储用户信息的方式，认证服务器将用户信息存储到指定的redis库中，在资源服务获取到access_token时，进而实现权限角色的限制，会到redis中获取用户信息，适合微服务场景
+
+### JWT令牌
+① 对于Token来说，需要查库或者和服务器中的Token比对是否有效  
+② JWT包含三个部分：Header头部、Payload负载和Signature签名。由三部分生成JwtToken，三部分之间用“.”号做分割。校验也是JWT内部自己实现的，并且可以将你存储时候的信息从JwtToken中取出来无须查库  
+③ JWT不用查库，客户端将登录时收到的jwtToken传到后端，直接在服务端进行校验，因为用户的信息、加密信息和过期时间都在jwtToken中，而且校验的过程也是JWT自己实现的
 
 
+
+
+
+# 如何动态更新已登录用户的信息
