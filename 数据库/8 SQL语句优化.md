@@ -1,3 +1,10 @@
+```
+https://mp.weixin.qq.com/s/mhW_y_tdW2_EGrpCohMAhQ
+https://mp.weixin.qq.com/s/cOvmXQYqe0CyAHjo-3-BjA
+https://mp.weixin.qq.com/s/veLas1JX8kN0BXfKv2BXqw
+https://www.cnblogs.com/qluzzh/p/10782993.html
+```
+
 1、对查询进行优化，应尽量避免全表扫描，首先应考虑在 WHERE 及 ORDER BY 涉及的列上建立索引。  
 2、应尽量避免在 WHERE 子句中对字段进行 NULL 值判断，创建表时 NULL 是默认值，但大多数时候应该使用 NOT NULL，或者使用一个特殊的值，如 0，-1 作为默认值。  
 3、应尽量避免在 WHERE 子句中使用 != 或 <> 操作符。MySQL 只有对以下操作符才使用索引：<，<=，=，>，>=，BETWEEN，IN，以及某些时候的 LIKE。  
@@ -59,4 +66,3 @@ select a.personMemberID, * from chineseresume a,personmember b where b.reference
 
 
 
-https://mp.weixin.qq.com/s/mhW_y_tdW2_EGrpCohMAhQ
