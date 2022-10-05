@@ -16,3 +16,9 @@ find [path ] [-option] [action]
 更改文件权限chmod,改变文件所有者是chown
 
 https://www.cnblogs.com/xuxinstyle/p/9609551.html
+
+```
+centos6和7的区别
+① 防火墙：6是iptables，7是firewalld
+② 启动服务的命令：6是service，7是systemctl
+```
