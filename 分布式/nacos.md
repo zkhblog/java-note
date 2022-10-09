@@ -25,3 +25,8 @@ spring.cloud.nacos.config.ext-config[0].refresh=true
 6 使用命名空间nameSpace来创建各服务的配置  
 7 使用分组group来区分不同的环境  
 8 使用多配置集extension-configs区分不同类型的配置
+
+# 持久化
+
+
+# 集群
