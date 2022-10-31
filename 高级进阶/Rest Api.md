@@ -111,8 +111,9 @@ POST /_bulk
 ##########     测试数据     ##########
 # https://github.com/elastic/elasticsearch/blob/7.4/docs/src/test/resources/accounts.json
 
-##########     match_all     ##########
+##########     match_all查询所有     ##########
 # 查询所有数据中第0个到第5个数据
+# query参数中match_all查询代表查询所有数据，es可以在query中组合非常多的查询类型以完成复杂查询
 GET bank/_search
 {
   "query": {
@@ -148,7 +149,7 @@ GET bank/_search
 }
 
 ##########     match分词匹配     ##########
-# match分词匹配，检索条件中20不见""就是精确匹配
+# match分词匹配，检索条件中20不带""时，就是精确匹配
 GET /bank/_search
 {
   "query": {
@@ -173,7 +174,7 @@ GET bank/_search
 {
   "query": {
     "match": {
-      "address.keyword": "282 Kings"
+      "address.keyword": "282 Kings Place"
     }
   }
 }
@@ -641,5 +642,4 @@ GET bank
     }
   }
 }
-
 ```

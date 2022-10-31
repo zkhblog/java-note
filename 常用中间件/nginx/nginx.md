@@ -52,6 +52,11 @@ http {
         keepalive_requests 120;                                                         #单连接请求上限次数。
         listen       4545;                                                              #监听端口
         server_name  127.0.0.1;                                                         #监听地址       
+
+        proxy_connect_timeout 12000;                                                    # 调大超时时间，避免nginx重试导致请求重发
+        proxy_send_timeout 12000;
+        proxy_read_timeout 12000;
+
         location  ~*^.+$ {                                                              #请求的url过滤，正则匹配，~为区分大小写，~*为不区分大小写。
            #root path;                                                                  #根目录
            #index vv.txt;                                                               #设置默认页

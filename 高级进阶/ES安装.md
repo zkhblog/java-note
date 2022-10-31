@@ -1,3 +1,31 @@
+***
+待学习...
+***
+
+# 基本操作
+1 创建索引库的分片数默认1片，在7.0.0之前的es版本中，默认5片  
+2 查看索引相关信息
+
+| 表头 | 含义 |
+| ---- | ---- |
+| health | 当前服务器健康状态：green（集群完整）、yellow（单点正常，集群不完整）、red（单点不正常）  |
+| status | 索引打开、关闭状态 |
+| index | 索引名 |
+| uuid | 索引统一编号 |
+| pri | 主分片数量 |
+| rep | 副本数量 |
+| docs.count | 可用文档数量 |
+| docs.deleted | 文档删除状态（逻辑删除） |
+| store.size | 主分片和副分片整体占空间大小 |
+| pri.store.size | 主分片占空间大小 |
+
+查看所有节点信息：_cat/nodes
+查看es健康状况：_cat/health
+查看主节点信息：_cat/master
+查看所有索引：_cat/indices
+
+
+
 # 安装
 下载elastic search和kibana
 ```
