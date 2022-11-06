@@ -1,5 +1,4 @@
-# 认证流程图
-![img.png](images/SpringSecurity认证流程图.png)
+![img.png](images/SpringSecurity流程图.png)
 
 # 权限管理中的相关概念
 1 用户认证：判断用户的身份是否合法的过程；  
