@@ -1,17 +1,25 @@
 # 详细源码分析流程图见：[源码分析流程图](https://www.processon.com/)
 
+# 源码分析核心点
+① DefaultListableBeanFactory这个工厂实现的具体功能  
+② BeanDefinitionRegistry中放入BeanDefinition的过程  
+③ 
+
+# 注解分析
+单例依赖多例，确保多例生效，可以用@Lookup注解，此时不能再用@Autowired。而且单例不能通过@Bean的方式注入容器中，这种方式也是不生效的
+
 # 基础接口
 1 Resource + ResourceLoader  
 ResourceLoader接口的实现是策略模式的体现。注意ApplicationContext也间接继承了该接口  
 
-2 **BeanFactory**  
--- HierarchicalBeanFactory          定义父子工厂  
+### BeanFactory
+1 HierarchicalBeanFactory（定义父子工厂）  
     我们常用的ioc容器```AnnotationConfigApplicationContext```，继承于GenericApplicationContext，该容器组合了下面的功能  
 
--- ListableBeanFactory              能列举所有组件
+2 ListableBeanFactory（能列举所有组件）
     此接口的实现是DefaultListableBeanFactory，可以提供ioc容器中的Bean定义信息相关功能，因为实现了```BeanDefinitonRegistry```  
 
--- AutowireCapableBeanFactory       提供自动装配共功能  
+3 AutowireCapableBeanFactory（提供自动装配共功能）  
     此接口的实现类也是DefaultListableBeanFactory，也是被我们常用的ioc容器所持有  
 
 3 BeanDefinition  

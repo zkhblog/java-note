@@ -24,8 +24,6 @@
 查看主节点信息：_cat/master
 查看所有索引：_cat/indices
 
-
-
 # 安装
 下载elastic search和kibana
 ```
@@ -83,3 +81,7 @@ unzip elasticsearch-analysis-ik-7.6.2.zip -d ik
 ```
 mv ik plugins
 ```
+
+# 生成动态域
+在es的model中增加Map<String,Object>类型的字段，然后将要保存的string类型数据转成map后，设置进动态域中
+
