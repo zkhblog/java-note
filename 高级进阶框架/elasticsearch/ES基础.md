@@ -82,6 +82,69 @@ unzip elasticsearch-analysis-ik-7.6.2.zip -d ik
 mv ik plugins
 ```
 
-# 生成动态域
+# 查询文档数量
+```GET _cat/indices?v```，查询索引库里面每个索引总的文档数  
+```GET order_index/_count```，查询当前索引的文档数，不包括嵌套文档数量
+
+# Rest API
+### 生成动态域
 在es的model中增加Map<String,Object>类型的字段，然后将要保存的string类型数据转成map后，设置进动态域中
+
+# es中的嵌套查询及介绍
+
+> 嵌套文档的缺点：如果一个订单，有1000个订单项，那么在 ES 中存在的文档数就是1001，会随着订单数的增加而成倍上升
+
+结构性的JSON文档会平整成索引内的一个简单键值格式
+例如：
+```
+{
+    "memberGoods.title":[
+        "商品A",
+        "商品B"
+    ],
+    "memberGoods.brand":[
+        "a",
+        "b"
+    ],
+    "groupId":"A"
+}
+```
+原来的json数据其实是：
+```
+{
+    "memberGoods":[
+        {
+            "title":"商品A",
+            "brand":"a"
+        },
+        {
+            "title":"商品B",
+            "brand":"b"
+        }
+    ],
+    "groupId":"A"
+}
+```
+平整之后，通过如下查询条件，依然能够查出数据
+```
+{
+    "query":{
+        "bool":{
+            "must":[
+                {
+                    "match":{
+                        "title":"商品A"
+                    }
+                },
+                {
+                    "match":{
+                        "brand":"b"
+                    }
+                }
+            ]
+        }
+    }
+}
+```
+
 

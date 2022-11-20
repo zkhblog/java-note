@@ -1,4 +1,39 @@
 ```
+GET bank/_search
+{
+query查询:
+1、"match": { "account_number": 0 }, 									//分词匹配
+2、"match_all": {}, 													// 查询所有
+3、"match_phrase": { "address": "kings" }, 								// 短语匹配,
+4、"multi_match": { "query": "mill", "fields": ["state","address"] }, 	// 多字段匹配
+
+// 复合查询
+5、"bool": { "must": [ {"match": {"address": "mill"}}, {"match": {"gender": "M"}} ] }
+# must、should和must not查询都被称为查询子句
+#"filter": [ { "range": { "balance": { "gte": 10000, "lte": 20000 } } } ]	// 过滤查询
+
+// term查询，全文检索字段用match，其他非text字段匹配用term
+6、"term": { "age": { "value": "28" } }
+7、"prefix": { "email": { "value": "lanetate" } }						// 前缀查询
+8、"ids": { "values": ["2",3,30,"300"] }								// ids查询
+ 
+"from": 0, 
+"size": 20, 
+"sort": [ {"FIELD": {"order": "desc" } } ], 							// 排序字段
+"_source": "{field}",													// 指定查询字段
+
+8、"aggs": { 															// 聚合查询
+	"aggAgg": { "terms": { "field": "age", "size": 10 } },
+    "ageAvg":{ "avg": { "field": "age" }}
+  }
+}
+
+keyword字段类型可以用作聚合和排序
+integer字段类型用作范围查询
+
+```
+
+```
 # 查看所有节点。注：*表示集群中的主节点
 GET /_cat/nodes
 
@@ -108,6 +143,8 @@ POST /_bulk
 
 
 
+
+
 ##########     测试数据     ##########
 # https://github.com/elastic/elasticsearch/blob/7.4/docs/src/test/resources/accounts.json
 
@@ -130,7 +167,9 @@ GET bank/_search
   ]
 }
 
-# 返回部分字段
+
+
+# 返回部分字段，通过_source指定返回字段
 GET bank/_search
 {
   "query": {
@@ -145,19 +184,21 @@ GET bank/_search
       }
     }
   ],
-  "_source": ["balance","firstname"]
+  "_source": ["balance","firstname","account_number"]
 }
 
 ##########     match分词匹配     ##########
-# match分词匹配，检索条件中20不带""时，就是精确匹配
+# 在query中用match进行分词匹配
 GET /bank/_search
 {
   "query": {
     "match": {
-      "account_number": 20
+      "account_number": "1"
     }
   }
 }
+
+GET bank/_mapping
 
 # 检索条件加""会进行模糊查询，并会对检索条件进行分词匹配
 GET bank/_search
@@ -169,7 +210,9 @@ GET bank/_search
   }
 }
 
-# match.keyword
+# match.keyword进行文本字段的匹配
+# 匹配的条件就是要显示字段的全部值
+# 进行精确匹配
 GET bank/_search
 {
   "query": {
@@ -185,18 +228,12 @@ GET bank/_search
 {
   "query": {
     "match_phrase": {
-      "address": "kings"
+      "address": "Kings Place"
     }
   }
 }
 
-# 总结
-# 文本字段的匹配，使用keyword，匹配的条件就是要显示字段的全部值，要进行精确匹配的
-# match_phrase是做短语匹配，只要文本中包含匹配条件即包含这个短语，就能匹配到
-
-
 ##########  multi_match多字段匹配 ##########
-
 # state或address中包含mill，并且在查询过程中，会对查询条件进行分词
 GET bank/_search
 {
@@ -235,23 +272,11 @@ GET bank/_search
   "query": {
     "bool": {
       "must": [
-        {
-          "match": {
-            "gender": "M"
-          }
-        },
-        {
-          "match": {
-            "address": "mill"
-          }
-        }
+        {"match": {"gender": "M"}},
+        {"match": {"address": "mill"}}
       ],
       "must_not": [
-        {
-          "match": {
-            "age": "38"
-          }
-        }
+        {"match": {"age": "8"}}
       ]
     }
   }
@@ -262,37 +287,30 @@ GET bank/_search
   "query": {
     "bool": {
       "must": [
-        {
-          "match": {
-            "gender": "M"
-          }
-        },
-        {
-          "match": {
-            "address": "mill"
-          }
-        }
+        {"match": {"gender": "M"}},
+        {"match": {"address": "mill"}}
       ],
       "must_not": [
-          { "match": {
-              "age": "18"
-            }
-          }
+        {"match": {"age": "18"}}
       ],
       "should": [
-        {
-          "match": {
-            "lastname": "Wallace"
-          }
-        }
+        {"match": {"lastname": "Wallace"}}
       ]
     }
   }
 }
 
-
 ##########  filter过滤查询 ##########
-# 并不是所有的查询都需要产生分数，特别是那些仅用于filter过滤的文档。为了不计算分数，es会自动检查场景并且优化查询的执行
+# 并不是所有的查询都需要产生分数，特别是那些仅用于
+# filter过滤的文档。为了不计算分数，es会自动检查场景并且优化查询的执行
+# 过滤查询必须配合bool查询使用
+# 在执行 filter 和 query 时,先执行 filter 在执行 query
+# Elasticsearch会自动缓存经常使用的过滤器，以加快性能
+# 过滤适合用在大范围筛选数据，而查询则适合精确匹配数据
+# term过滤指定字段的一个关键词，terms可以过滤指定多个关键词
+# range过滤指定字段的值的范围
+# exists过滤指定字段不为空的文档
+# ids过滤指定ID数组中的文档
 
 # 先查询所有匹配address等于mill的文档，然后再根据
 # 10000 < balance < 20000 进行过滤查询结果
@@ -324,7 +342,8 @@ GET bank/_search
 # 总结
 # must、should和must not元素
 # 都被称为查询子句。文档是否符合子句查询标准，决定了文档的“相关性得分”。得分越高，越符合搜索条件。
-# must not子句中的条件影响文档是否包含在结果中，但不影响文档的得分方式。filter在使用过程中，并不会计算相关性得分_score
+# must not子句中的条件影响文档是否包含在结果中，但不影响文档的得分方式
+# filter在使用过程中，并不会计算相关性得分_score
 
 GET bank/_search
 {
@@ -341,8 +360,8 @@ GET bank/_search
         {
           "range": {
             "balance": {
-              "gte": 10000,
-              "lte": 20000
+              "gte": 15000,
+              "lte": 26000
             }
           }
         }
@@ -354,7 +373,7 @@ GET bank/_search
 
 
 ##########  term ##########
-
+# 全文检索字段用match、其他非text字段匹配用term
 GET bank/_search
 {
   "query": {
@@ -378,12 +397,8 @@ GET bank/_search
   }
 }
 
-# 总结
-# 全文检索字段用match、其他非text字段匹配用term
 
-
-##########  聚合 ##########
-
+########## 聚合 ##########
 # size为0表示不看结果详情，只看聚合结果
 GET bank/_search
 {
@@ -413,7 +428,6 @@ GET bank/_search
   }
 }
 
-
 # 按照年龄聚合，并且求这些年龄段的人的平均薪资
 GET bank/_search
 {
@@ -425,7 +439,7 @@ GET bank/_search
     "ageRange":{
       "terms": {
         "field": "age",
-        "size": 10
+        "size": 1
       },
       "aggs": {
         "balanceAvg": {
@@ -438,7 +452,7 @@ GET bank/_search
   }
 }
 
-# 查看所有年龄分布，并且查出年龄段中M的平均薪资和F的平均薪资以及这个年龄段的总体平均薪资
+# 查看所有年龄分布，并且查出年龄段中M的平均薪资和F的平均薪资以及这个年龄段的总体平均薪
 GET bank/_search
 {
   "query": {
@@ -446,25 +460,25 @@ GET bank/_search
   },
   "size": 0,
   "aggs": {
-    "ageRange": {
+    "年龄分组": {
       "terms": {
         "field": "age",
         "size": 10
       },
       "aggs": {
-        "genderAgg": {
+        "该年龄段内男女分布": {
           "terms": {
             "field": "gender.keyword"
           },
           "aggs": {
-            "balanceAvg": {
+            "每种性别的平均薪资": {
               "avg": {
                 "field": "balance"
               }
             }
           }
         },
-        "ageBalanceAvg": {
+        "总体平均薪资": {
           "avg": {
             "field": "balance"
           }
@@ -474,11 +488,10 @@ GET bank/_search
   }
 }
 
-
 ##########  属性 ##########
-
 ### 将bank数据迁移到newbank，并修改age字段的映射从long到integer
-
+GET bank/_mapping
+GET newbank/_mapping
 PUT /newbank
 {
   "mappings": {
@@ -553,7 +566,6 @@ POST _analyze
 }
 
 ##########  安装完ik中文分词器 ##########
-
 # 使用的是标准分词器，对中文不友好
 GET _analyze
 {

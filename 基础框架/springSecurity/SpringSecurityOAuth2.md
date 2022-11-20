@@ -1,6 +1,7 @@
 # 认证
 ### 基于Session的认证方式
-基于Session的认证机制由Servlet规范定制，Servlet容器已实现，用户通过HttpSession的操作方法即可实现
+1 基于Session的认证机制由Servlet规范定制，Servlet容器已实现，用户通过HttpSession的操作方法即可实现  
+2 会话是指用户登录系统后，系统会记住用户的登录状态。在认证成功后，可以把认证成功的信息存入session中，在后续请求中，系统能够从session中获得当前用户信息
 
 ### 基于token的认证方式
 Jwt
@@ -15,4 +16,14 @@ Jwt
 ### 基于资源/权限的访问控制
 更灵活
 
+# OAuth2
+1 OAuth2.0包含以下角色  
+① 客户端  
+② 资源拥有者  
+③ 授权服务器（也称为认证服务器）  
+④ 资源服务器  
+
+2 除了校验用户信息是否合法，还会校验客户端信息（即client_id和client_secret）  
+
+3 
 
