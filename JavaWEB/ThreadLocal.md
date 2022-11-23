@@ -7,6 +7,10 @@ https://mp.weixin.qq.com/s?__biz=MzkxNTE3NjQ3MA==&mid=2247491733&idx=1&sn=2a4efe
 必须回收自定义的ThreadLocal变量，尤其在线程池场景下，线程经常会被复用，如果不清理自定义的ThreadLocal变量，可能会影响后续业务逻辑和造成内存泄露问题  
 尽量使用try-finally块进行回收  
 
+> 必须进行清空线程数据处理  
+> 程序运行在 Tomcat 中，执行程序的线程是Tomcat的工作线程，而Tomcat的工作线程是基于线程池的  
+> 线程池会重用固定的几个线程，一旦线程重用，那么很可能首次从 ThreadLocal 获取的值是之前其他用户的请求遗留的值。这时，ThreadLocal 中的用户信息就是其他用户的信息。
+
 核心是三点：线程并发、传递数据、线程隔离
 
 # ThreadLocal与synchronized的区别
