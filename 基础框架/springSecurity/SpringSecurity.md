@@ -68,6 +68,8 @@ return new User(userInfo.getUserName(),userInfo.getPassWord(),AuthorityUtils.com
 
 # 如何动态更新已登录用户的信息
 
+# 授权流程-投票机制
+
 # SpringSecurity各个过滤器说明
 SpringSecurity 采用的是责任链的设计模式，它有一条很长的过滤器链。现在对这条过滤器链的 15 个过滤器进行说明:  
 (1) `WebAsyncManagerIntegrationFilter`：将Security上下文与Spring Web中用于处理异步请求映射的 WebAsyncManager 进行集成。  

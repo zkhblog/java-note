@@ -1,4 +1,5 @@
-1 HTTP允许传输任意类型的数据对象，正在传输的类型由Content-Type加以标记  
+1 HTTP允许传输任意类型的数据对象，正在传输的类型由Content-Type加以标记
+
 ```
 text/html：HTML格式（默认格式）
 text/plain：纯文本格式
@@ -18,4 +19,18 @@ application/x-www-form-urlencoded：（<form encType="">中默认的encType，fo
 multipart/form-data：需要在表单中进行文件上传时，就需要使用该格式
 ```
 
+# get请求
+
+```java
+// ① 加请求头
+// 模拟浏览器
+    httpGet.addHeader("User-Agent","Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/107.0.0.0 Safari/537.36");
+// 防盗链
+    httpGet.addHeader("Referer","https://www.baidu.com");
+
+// ② url编码
+    address=URLEncoder.encode(address,StandardCharsets.UTF_8.name());
+```
+
+# 异步连接池
 
