@@ -1,86 +1,6 @@
-***
-待学习...
-***
-
-# 基本操作
-1 创建索引库的分片数默认1片，在7.0.0之前的es版本中，默认5片  
-2 查看索引相关信息
-
-| 表头 | 含义 |
-| ---- | ---- |
-| health | 当前服务器健康状态：green（集群完整）、yellow（单点正常，集群不完整）、red（单点不正常）  |
-| status | 索引打开、关闭状态 |
-| index | 索引名 |
-| uuid | 索引统一编号 |
-| pri | 主分片数量 |
-| rep | 副本数量 |
-| docs.count | 可用文档数量 |
-| docs.deleted | 文档删除状态（逻辑删除） |
-| store.size | 主分片和副分片整体占空间大小 |
-| pri.store.size | 主分片占空间大小 |
-
-查看所有节点信息：_cat/nodes
-查看es健康状况：_cat/health
-查看主节点信息：_cat/master
-查看所有索引：_cat/indices
-
-# 安装
-下载elastic search和kibana
-```
-docker pull elasticsearch:7.6.2
-docker pull kibana:7.6.2
-```
-
-配置
-```
-mkdir -p /mydata/elasticsearch/config  创建目录
-mkdir -p /mydata/elasticsearch/data
-echo "http.host: 0.0.0.0" >/mydata/elasticsearch/config/elasticsearch.yml
-
-//将mydata/elasticsearch/文件夹中文件都可读可写
-chmod -R 777 /mydata/elasticsearch/
-```
-
-启动es
-```
-docker run --name elasticsearch -p 9200:9200 -p 9300:9300 \
--e  "discovery.type=single-node" \
--e ES_JAVA_OPTS="-Xms64m -Xmx512m" \
--v /mydata/elasticsearch/config/elasticsearch.yml:/usr/share/elasticsearch/config/elasticsearch.yml \
--v /mydata/elasticsearch/data:/usr/share/elasticsearch/data \
--v  /mydata/elasticsearch/plugins:/usr/share/elasticsearch/plugins \
--d elasticsearch:7.6.2
-
-// 设置开机启动es
-docker update elasticsearch --restart=always
-```
-
-启动kibana
-```
-docker run --name kibana -e ELASTICSEARCH_HOSTS=http://192.168.6.128:9200 -p 5601:5601 -d kibana:7.6.2
-
-// 设置开机启动kibana
-docker update kibana  --restart=always
-```
-
-# 安装ik分词器
-进入es容器内部
-```
-docker exec -it elasticsearch /bin/bash
-```
-
-```
-wget  https://github.com/medcl/elasticsearch-analysis-ik/releases/download/v7.6.2/elasticsearch-analysis-ik-7.6.2.zip
-```
-
-```
-unzip elasticsearch-analysis-ik-7.6.2.zip -d ik
-```
-
-移动到plugins目录下
-```
-mv ik plugins
-```
+-------------------------------------------------------------
+接着学习文档批量操作（bulk和mGet）
+-------------------------------------------------------------
 
 # 查询文档数量
 ```GET _cat/indices?v```，查询索引库里面每个索引总的文档数  
@@ -147,4 +67,102 @@ mv ik plugins
 }
 ```
 
+# Query DSL 类型
+### match_all
+
+### 全文搜索
+① 匹配搜索：match queries接收text/numerics/dates，对他们进行分词分析，再组织成一个boolean查询，可以通过operator指定bool组合操作  
+```
+POST /lagou-property/_search
+{
+  "query": {
+    "match": {
+      "title": {
+        "query": "小米电视4A",
+        "operator": "and"
+      }
+    }
+  }
+}
+```
+② 短语搜索：match_phrase查询用来对一个字段进行短语查询，可以指定analyzer、slop移动因子  
+```
+GET /lagou-property/_search
+{
+  "query": {
+    "match_phrase": {
+      "title": {
+        "query": "小米4A",
+        "slop": 2
+      }
+    }
+  }
+}
+```
+③ query_string查询：提供了无需指定某字段而对文档全文进行匹配查询的一个高级查询,同时可以指定在哪些字段上进行匹配  
+```
+GET /lagou-property/_search
+{
+  "query": {
+    "query_string": {
+      // "query": "小米 AND 5A", 逻辑查询
+      // "query": "小米 OR 5A", 逻辑查询
+      // "query": "小米~5A",模糊查询
+      "default_field": "title",
+      "fields": ["title","images"]
+    }
+  }
+}
+```
+④ 多字段匹配搜索(multi match query)：在多个字段上进行文本搜索  
+```
+GET /lagou-property/_search
+{
+  "query": {
+    "multi_match": {
+      "query": "http://image.lagou.com/12479622.jpg",
+      "fields": ["images", "tit*"]  // 可以使用*匹配多个字段
+    }
+  }
+}
+```
+
+### 词条级搜索
+根据结构化数据中的精确值查找文档，结构化数据的值包括日期范围、IP地址、价格或产品ID。与全文查询不同，词条级搜索不分析搜索词条，相反，词条与存储在字段级别中的术语需完全匹配  
+① 词条集合搜索：用于查询指定字段包含某些词项的文档
+```
+GET book/_search
+{
+  "query": {
+    "terms": {
+      "name": [
+        "solr",
+        "hadoop"
+      ]
+    }
+  }
+}
+```
+② 范围搜索：gte、gt、lte、lt、boost  
+③ 不为空搜索：查询指定字段值不为空的文档  
+```
+GET book/_search
+{
+  "query": {
+    "exists": {
+      "field": "price"
+    }
+  }
+}
+```
+④ 词项前缀搜索：prefix  
+⑤ 通配符搜索：wildcard query  
+⑥ 正则搜索：regexp  
+⑦ 模糊搜索：fuzzy  
+⑧ ids搜索：
+
+
+### 复合搜索
+① ```constant_score```用来包装另一个查询，将查询匹配的文档的评分设为一个常值  
+② ```bool query```用来组合多个查询子句为一个查询  
 
