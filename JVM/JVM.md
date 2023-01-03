@@ -1,12 +1,3 @@
-# 待处理问题
-![img_25.png](temp/img_25（暂时不删除）.png)
-![img_26.png](temp/GC日志说明.png)
-![img_27.png](temp/GC日志说明2.png)
-![img_28.png](temp/GC日志说明3.png)
-![img_29.png](temp/GC日志说明4.png)
-![img_30.png](temp/img_30.png)
-![img_31.png](temp/img_31.png)
-
 # dump文件
 ### 获取dump文件
 方法一：通过```jmap```工具生成，可以生成任意一个java进程的dump文件  
