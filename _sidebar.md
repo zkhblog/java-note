@@ -112,15 +112,14 @@
   * [接口优化方案](问题整理/接口优化方案总结.md)
   * [代码优化](JavaWEB/代码优化.md)
 * 高级进阶框架
-  * [DSL](高级进阶框架/elasticsearch/DSL.md)
-  * [基础](高级进阶框架/elasticsearch/ES基础.md)
-  * [控制相关度](高级进阶框架/elasticsearch/控制相关度.md)
-  * [新增字段操作](高级进阶框架/elasticsearch/新增字段操作.md)
-  * [深度分页](高级进阶框架/elasticsearch/深度分页.md)
-  * [深度分页](高级进阶框架/elasticsearch/深度分页.md)
-  * JSON嵌套查询
-    * [嵌套查询总结](高级进阶框架/elasticsearch/实现嵌套json查询/嵌套json查询总结.md)
-    * [嵌套文档](高级进阶框架/elasticsearch/实现嵌套json查询/嵌套文档.md)
+  * ElasticSearch
+    * [DSL](高级进阶框架/elasticsearch/DSL.md)
+    * [基础](高级进阶框架/elasticsearch/ES基础.md)
+    * [控制相关度](高级进阶框架/elasticsearch/控制相关度.md)
+    * [新增字段操作](高级进阶框架/elasticsearch/新增字段操作.md)
+    * [深度分页](高级进阶框架/elasticsearch/深度分页.md)
+    * JSON嵌套查询
+      * [嵌套文档](高级进阶框架/elasticsearch/实现嵌套json查询/嵌套文档.md)
 * 项目总结
 * 算法
   * [经典限流算法](算法/经典限流算法.md)
