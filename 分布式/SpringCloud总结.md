@@ -1,5 +1,4 @@
-一、注册中心
-
+# 注册中心
 Eureka包含两个组件：EurekaServer和EurekaClient
 EurekaServer提供服务注册服务：各个微服务节点通过配置后，会在EurekaServer中进行注册，
 这样EurekaServer中的服务注册表中将会存储所有可用服务节点的信息，服务节点的信息可以在界面中直观看到。

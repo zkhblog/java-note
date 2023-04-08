@@ -41,7 +41,7 @@
     * [SpringSecurityOauth2](基础框架/springSecurity/Spring-Security-OAuth2.md)
     * [SpringSecurity](基础框架/springSecurity/SpringSecurity.md)
   * SpringCloud
-    * [SpringCloud](分布式/springCloud视频总结.md)
+    * [SpringCloud](分布式/SpringCloud总结.md)
 * 消息队列
   * [KafKa](消息队列/kafka.md)
   * [RabbitMQ](消息队列/rabbitmq.md)
