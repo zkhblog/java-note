@@ -75,7 +75,7 @@
     * [分库分表](分布式/分库分表/分库分表.md)
   * 注册中心
     * [Eureka](分布式/注册中心/Eureka.md)
-    * [```Nacos```](分布式/注册中心/nacos.md)
+    * [```Nacos```](分布式/注册中心/Nacos.md)
   * 熔断降级
     * [sentinel](分布式/熔断降级/sentinel.md)
     * [hystrix](分布式/Hystrix.md)
