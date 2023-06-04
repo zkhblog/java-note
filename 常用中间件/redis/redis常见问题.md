@@ -30,7 +30,7 @@
 
 2 互斥锁  
 使用分布式锁，保证对于每个key同时只有一个线程去查询后端服务，其他线程没有获得分布式锁的权限，因此只需要等待即可。这种方式将高并发的压力转移到了分布式锁
-```java
+```
 /**
  * 尝试获取锁
  *
@@ -51,7 +51,8 @@ private void unLock(String key) {
     stringRedisTemplate.delete(key);
 }
 ```
-```java
+
+```
 public Shop queryWithMutex(Long id) throws InterruptedException {
     //从Redis查询商铺缓存
     String cacheShop = stringRedisTemplate.opsForValue().get(SHOPCACHEPREFIX + id);
@@ -111,12 +112,15 @@ public Shop queryWithMutex(Long id) throws InterruptedException {
 ```
 
 # 缓存和数据库一致性问题说明
+```
+https://zhuanlan.zhihu.com/p/91770135
+```
 1 场景说明：  
 通常在开发中，都会使用mysql作为存储，而redis作为缓存，加速和保护mysql。但是，当mysql数据更新之后，redis怎么保持同步呢。
 强一致性同步成本太高，如果追求强一致，那么没必要用缓存了，直接用mysql即可。通常考虑的，都是最终一致性  
 2 解决方案：  
 常用更新数据库后删除缓存，查询时再添加缓存。并且在单体架构中通过采用事务方式保证缓存与数据库的操作同时成功或失败
-```java
+```
 @Override
 @Transactional
 public Result updateShop(Shop shop) {

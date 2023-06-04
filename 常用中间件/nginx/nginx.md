@@ -1,19 +1,16 @@
-注意：
-nginx转发后，会丢失host头，造成网关不知道原host。在进行网关匹配的时候需要将头信息添加上。（网关匹配是优先匹配）
-```
-  location / {
-        proxy_pass http://gulimall;
-        proxy_set_header Host $host;
-    }
-```
+# 基础
+① nginx默认采用多进程工作方式，nginx启动后，会运行一个master进程和多个worker进程。其中master充当整个进程组与用户的交互接口，同时对进程进行监护，
+管理worker进程来实现重启服务、平滑升级、更换日志文件、配置文件实时生效等功能。worker进程用来处理基本的网络事件，worker之间是平等的，
+他们共同竞争处理来自客户端的请求
 
-> ①项目上线之后，用户在访问域名的时候，访问的应该是nginx的ip，而不是服务的ip。请求到了nginx之后，如果是静态资源I（/static/**）直接在nginx中找到静态资源然后返回。
-> 如果不是静态资源（/），nginx把他upstream转交给另外一个ip，这个ip所对应的进程是网关gateway。到达网关之后，通过url信息断言判断应该转发给nacos中的哪个微服务。
-> 在给nacos之前，也可以重写url。
-> ②对于openFeign，因为在服务中注册了nacos的ip，所以他并不经过nginx
-> 在upstream的过程中要注意配置proxy_set_header Host $host;
+② 项目上线之后，用户在访问域名的时候，访问的应该是nginx的ip，而不是服务的ip。请求到了nginx之后，如果是静态资源I（/static/**）
+直接在指定路径中找到静态资源然后返回。如果不是静态资源（/），nginx把他upstream转交给另外一个ip，这个ip所对应的进程是网关gateway。
+到达网关之后，通过url信息断言应该转发给注册中心中的哪个微服务。在给微服务之前，也可以重写url  
+在upstream的过程中要注意配置```proxy_set_header Host $host;```，避免nginx丢失host后，在网关中没法根据host进行断言
 
-https://www.cnblogs.com/dancesir/p/9253043.html
+③ nginx有一个master，有```worker_processes```个worker，每个worker支持最大的连接数1024，支持的最大并发数是  
+普通的静态访问最大并发数是：```worker_connectionsworker_processes/2```  
+如果是http作为反向代理来说，最大并发数量应该是```worker_connectionsworker_processes/4```
 
 ########### 每个指令必须有分号结束。#################
 ########### 全局块 #################
