@@ -43,9 +43,7 @@ public class DataSourceProxyConfig {
 }
 ```
 因为使用了mybatis的starter所以需要排除DataSourceAutoConfiguration，不然会产生循环依赖  
-```java
-@SpringBootApplication(exclude = {DataSourceAutoConfiguration.class})
-```
+```@SpringBootApplication(exclude = {DataSourceAutoConfiguration.class})```
 ⑤ 事务发起者添加全局事务注解````@GlobalTransactional````  
 
 # ```Seata```原理详解
@@ -69,6 +67,10 @@ AT模式分成两个阶段，主要逻辑全部在第一个阶段，第二阶段
 ② 二阶段提交时异步化，非常快速的完成；回滚时通过一阶段的回滚日志进行反向补偿  
 相比一阶段，二阶段比较简单，负责整体的回滚和提交，如果之前的一阶段中有本地事务没有通过，那么就执行全局回滚，否则执行全局提交，回滚用到的就是一阶段记录的undo log，通过回滚记录生成
 反向更新SQL并执行，以完成分治的回滚。当然事务完成后会释放所有资源和删除所有日志
+
+# ```seata```的实现说明
+两阶段实现：第一阶段是将业务数据和回滚日志记录在同一个本地事务中提交，然后释放掉锁；和连接资源；第二阶段由协调者判断如果成功，进行异步提交，
+如果失败则通过一阶段的回滚日志进行反向补偿。
 
 # 总结
 总的来说在```Seata```的中AT模式基本可以满足百分之80的分布式事务的业务需求，AT模式实现的是最终一致性，所以可能存在中间状态，而XA模式实现的强一致性，所以效率较低一点，

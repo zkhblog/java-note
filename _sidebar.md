@@ -45,8 +45,7 @@
 * 消息队列
   * [KafKa](消息队列/kafka.md)
   * [RabbitMQ](消息队列/rabbitmq.md)
-  * [RabbitMQ学习总结](消息队列/RabbitMQ学习总结.md)
-  * [RocketMQ](消息队列/RocketMq.md)
+  * [RocketMQ](消息队列/rocketmq.md)
   * [常见问题及思路](消息队列/常见问题及思路.md)
 * 中间件
   * MyCat
@@ -73,11 +72,11 @@
   * 分库分表
     * [分库分表](分布式/分库分表/分库分表.md)
   * 注册中心
-    * [Eureka](分布式/注册中心/Eureka.md)
-    * [```Nacos```](分布式/注册中心/Nacos.md)
+    * [Eureka](分布式/注册中心/eureka.md)
+    * [```Nacos```](分布式/注册中心/nacos.md)
   * 熔断降级
     * [sentinel](分布式/熔断降级/sentinel.md)
-    * [hystrix](分布式/Hystrix.md)
+    * [hystrix](分布式/熔断降级/Hystrix.md)
   * [分布式session](分布式/分布式session.md)
   * 网关
     * [GateWay](分布式/网关/服务网关.md)
