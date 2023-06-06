@@ -1,5 +1,6 @@
 * JavaWEB
   * [基础](JavaWEB/基础.md)
+  * [数据结构](JavaWEB/数据结构.md)
   * [IO](JavaWEB/IO.md)
   * [集合](JavaWEB/集合.md)
   * [过滤器](JavaWEB/过滤器.md)
@@ -26,14 +27,15 @@
     * [MyBatis](基础框架/mybatis/MyBatis基础.md)
     * [运行原理](基础框架/mybatis/运行原理.md)
   * Spring
-    * [IOC和AOP](基础框架/spring/IOC和AOP.md)
-    * [Spring事务](基础框架/spring/Spring事务.md)
-    * [Spring架构图](基础框架/spring/Spring架构图.png)
-    * [Spring框架分析](基础框架/spring/Spring源码分析记载.md)
+    * [IOC](基础框架/spring/IOC.md)
+    * [AOP](基础框架/spring/AOP.md)
+    * [事务](基础框架/spring/事务.md)
     * [常用注解](基础框架/spring/常用注解.md)
-    * [Spring中设计模式](基础框架/spring/设计模式的体现.md)
+    * [Spring设计图](基础框架/spring/Spring设计图.png)
+    * [Spring中设计模式](基础框架/spring/Spring中设计模式.md)
   * SpringBoot
     * [SpringBoot](基础框架/SpringBoot/SpringBoot.md)
+    * [自动装配](基础框架/SpringBoot/自动装配原理.md)
   * SpringMVC
     * [SpringMVC](基础框架/springmvc/SpringMVC.md)
   * SpringSecurity
@@ -107,7 +109,6 @@
   * [服务器CPU使用率高](问题整理/磁盘或CPU使用率高.md)
   * [服务冲突和实例乱窜](问题整理/如何解决服务冲突和实例乱窜.md)
   * [导出百万数据](问题整理/导出百万数据.md)
-  * [事务失效场景](问题整理/事务失效场景.md)
   * [幂等设计](问题整理/幂等设计.md)
   * [大事务问题](问题整理/大事务问题.md)
   * [代码优化](JavaWEB/代码优化.md)

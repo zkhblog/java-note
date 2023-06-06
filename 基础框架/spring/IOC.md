@@ -1,9 +1,6 @@
-# 详细源码分析流程图见：[源码分析流程图](https://www.processon.com/)
-
 # 源码分析核心点
 ① DefaultListableBeanFactory这个工厂实现的具体功能  
 ② BeanDefinitionRegistry中放入BeanDefinition的过程  
-③ 
 
 # 注解分析
 单例依赖多例，确保多例生效，可以用@Lookup注解，此时不能再用@Autowired。而且单例不能通过@Bean的方式注入容器中，这种方式也是不生效的
@@ -33,7 +30,7 @@ ioc容器持有Bean工厂，Bean工厂只是ioc容器的功能之一
 
 7 Aware  
 给普通组件装配一些Spring底层组件  
-```java
+```
 自动装配Spring底层组件也可以如下实现  
 @Autowired
 private ApplicationContext applicationContext;
@@ -51,73 +48,18 @@ private ApplicationContext applicationContext;
 11 
 
 # 生命周期中的后置处理器
-1 BeanFactoryPostProcessor  
-
-
-2 BeanPostProcessor  
-
-
-3 InitializingBean  
-
-4 BeanDefinitionRegistryPostProcessor  
-
-
-
-
-
-ImportBeanDefinitionRegistrar：实现该接口将自定义的组件添加到IOC容器中。
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-```
-/**
- * 此实现类相当于配置了SpringMVC的DispatcherServlet
- * Tomcat启动时就会加载此实现类
- * 1）、创建容器，指定主配置类，此时IOC、AOP等Spring的功能就准备好了
- * 2）、注册了DispatcherServlet，访问Tomcat部署下的应用都会被此类处理，DispatcherServlet就会进入强大的基于注解的mvc处理流程
- *
- */
-public class MyWebApplicationInitializer implements WebApplicationInitializer {
-
-    @Override
-    public void onStartup(ServletContext servletContext) {          // Spring传入servletContext
-
-        // Load Spring web application configuration
-        // 创建IOC容器
-        AnnotationConfigWebApplicationContext context = new AnnotationConfigWebApplicationContext();
-        context.register(AppConfig.class);                          // 注册主配置类，（用注解版的SpringMVC配置替代配置文件）
-
-        // Create and register the DispatcherServlet
-        // 配置了DispatcherServlet，并且保存IOC容器
-        DispatcherServlet servlet = new DispatcherServlet(context);
-        ServletRegistration.Dynamic registration = servletContext.addServlet("app", servlet);   // 利用servlet规范添加DispatcherServlet
-        registration.setLoadOnStartup(1);
-        registration.addMapping("/app/*");                          // 指定好映射
-    }
-}
-```
-
-
-__outline__beanFactory的三个子接口bean组件实现aware接口，可以装配底层的一些组件，此处利用到的是回调机制，ApplicationContextAwareProcessor的
+① BeanFactoryPostProcessor  
+② BeanPostProcessor  
+③ InitializingBean  
+④ BeanDefinitionRegistryPostProcessor  
+⑤ ImportBeanDefinitionRegistrar：实现该接口将自定义的组件添加到IOC容器中。
+⑥ __outline__beanFactory的三个子接口bean组件实现aware接口，可以装配底层的一些组件，此处利用到的是回调机制，ApplicationContextAwareProcessor的
 postProcessBeforeInitialization实现了此机制Bean的功能增强全部是由BeanPostProcessor + InitializaingBean 两个接口完成的FactoryBean和普通Bean的差别，
 在遍历所有的beanNames的时候，两者的执行逻辑
 
+# 循环依赖
+![img.png](images/循环依赖表述.png)
+① Spring是如何解决循环依赖的问题的？  
+② 一级可以吗？  
+③ 是否可以关闭循环依赖？  
+④ 为什么要用三级缓存，用二级缓存可以吗？
