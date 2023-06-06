@@ -9,3 +9,33 @@
 可参考如下文章：https://blog.csdn.net/wudiyong22/article/details/80827594
 ```
 
+
+# 注册中心
+Eureka包含两个组件：EurekaServer和EurekaClient
+EurekaServer提供服务注册服务：各个微服务节点通过配置后，会在EurekaServer中进行注册，
+这样EurekaServer中的服务注册表中将会存储所有可用服务节点的信息，服务节点的信息可以在界面中直观看到。
+EurekaClient通过注册中心进行访问
+这是一个Java客户端，用于简化EurekaServer的交互，客户端同时也具备一个内置的、使用轮询负载算法的负载均衡器。
+在应用启动后，将会向EurekaServer发送心跳（默认周期30秒）。如果EurekaServer在多个心跳周期内没有接收到某个节点的心跳，
+EurekaServer将会从服务注册列表中把这个服务节点移除（默认90秒）
+
+Eureka的自我保护机制：某时刻某一个微服务不可用了，Eureka不会立刻清理，依旧会对该微服务的信息进行保存。暂时保留没有心跳的
+微服务的信息，期待着它的恢复。
+从设计上来说，是因为Eureka满足CAP理论的AP分支，也就是不保证强一致性，（那么有这样的机制就可以实现容错的目的---猜测）。
+出厂默认，自我保护机制是开启的，使用eureka.server.enable-self-preservation=false可以禁用自我保护模式
+
+Eureka集群原理说明：
+1、先启动Eureka注册中心
+2、启动服务提供者payment支付服务
+3、支付服务启动后会把自身信息（比如服务地址以别名方式注册进Eureka）
+4、消费者order服务在需要调用接口时，使用服务别名去注册中心获取实际的RPC远程调用地址
+5、消费者获得调用地址后，底层实际是利用HttpClient技术实现远程调用
+6、消费者获得服务地址后会缓存在本地jvm内存中，默认每间隔30秒更新一次服务调用地址
+
+只要服务注册中心不是Eureka，就不使用@EurekaServer和@EurekaClient，
+代替的是@EnableDiscoveryClient，该注解用于向使用consul和zookeeper作为注册中心时注册服务
+
+三种注册中心的区别主要体现在设计上，即CAP理论的取向，Eureka是AP的实现，Zookeeper和Consul是CP的实现
+因此，Eureka有搭建集群的必要性，微服务在Zookeeper上创建的是临时节点，微服务下线，临时节点**立即**被删除，
+真实的网络设计上，一般首选AP，要满足网站的高可用特性，为了保证可用性，系统B可以返回旧值，保证系统的可用性。
+

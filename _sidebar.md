@@ -43,7 +43,7 @@
     * [SpringSecurityOauth2](基础框架/springSecurity/Spring-Security-OAuth2.md)
     * [SpringSecurity](基础框架/springSecurity/SpringSecurity.md)
   * SpringCloud
-    * [SpringCloud](分布式/SpringCloud总结.md)
+    * [SpringCloud](分布式/SpringCloud其他.md)
 * 消息队列
   * [KafKa](消息队列/kafka.md)
   * [RabbitMQ](消息队列/rabbitmq.md)
@@ -124,7 +124,7 @@
       * [嵌套文档](高级进阶框架/elasticsearch/实现嵌套json查询/嵌套文档.md)
 * 项目总结
 * 算法
-  * [经典限流算法](算法/经典限流算法.md)
+  * [经典限流算法](算法/限流算法总结.md)
 * 读书笔记
   * [重构](读书笔记/重构.md)
 * 其他
