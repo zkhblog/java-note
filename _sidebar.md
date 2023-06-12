@@ -58,7 +58,7 @@
     * [基础](常用中间件/redis/redis基础.md)
     * [常见问题](常用中间件/redis/redis常见问题.md)
     * [集群方案](常用中间件/redis/redis集群方案.md)
-    * [锁](常用中间件/redis/用redis实现分布式锁的演进流程.md)
+    * [锁](常用中间件/redis/分布式锁.md)
   * Zookeeper
     * [ZK](常用中间件/zookeeper/zk.md)
 * 多线程
@@ -128,7 +128,5 @@
 * 读书笔记
   * [重构](读书笔记/重构.md)
 * 其他
-  * [EasyExcel](工具/EasyExcel.md)
-  * [序列化/反序列化](工具/序列化、反序列化.md)
-  * [日期时间](工具/日期时间.md)
-  * [Linux常用命令总结](Linux/Linux常用命令总结.md)
+  * [EasyExcel](工具/easyexcel.md)
+  * [Linux常用命令总结](Linux/linux常用命令.md)
