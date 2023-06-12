@@ -31,7 +31,6 @@
     * [AOP](基础框架/spring/AOP.md)
     * [事务](基础框架/spring/事务.md)
     * [常用注解](基础框架/spring/常用注解.md)
-    * [Spring设计图](基础框架/spring/Spring设计图.png)
     * [Spring中设计模式](基础框架/spring/Spring中设计模式.md)
   * SpringBoot
     * [SpringBoot](基础框架/SpringBoot/SpringBoot.md)
@@ -58,7 +57,6 @@
     * [基础](常用中间件/redis/redis基础.md)
     * [常见问题](常用中间件/redis/redis常见问题.md)
     * [集群方案](常用中间件/redis/redis集群方案.md)
-    * [锁](常用中间件/redis/分布式锁.md)
   * Zookeeper
     * [ZK](常用中间件/zookeeper/zk.md)
 * 多线程

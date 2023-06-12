@@ -1,3 +1,6 @@
+# Spring设计图
+![img.png](images/Spring设计图.png)
+
 # 源码分析核心点
 ① DefaultListableBeanFactory这个工厂实现的具体功能  
 ② BeanDefinitionRegistry中放入BeanDefinition的过程  

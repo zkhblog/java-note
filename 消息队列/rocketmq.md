@@ -1,36 +1,53 @@
-# 消费模式
-### pull模式
-由消费者客户端主动向消息中间件（MQ消息服务器代理）拉取消息；采用Pull方式，如何设置Pull消息的拉取频率需要重点去考虑，举个例子来说，可能1分钟内连续来了1000条消息，
-然后2小时内没有新消息产生（概括起来说就是“消息延迟与忙等待”）。如果每次Pull的时间间隔比较久，会增加消息的延迟，即消息到达消费者的时间加长，MQ中消息的堆积量变大；
-若每次Pull的时间间隔较短，但是在一段时间内MQ中并没有任何消息可以消费，那么会产生很多无效的Pull请求的RPC开销，影响MQ整体的网络性能
+```
+https://blog.csdn.net/qq_21040559/article/details/122703715
+```
+# RocketMQ的优势
+① 支持事务型消息（即消息发送和DB操作保持两方的最终一致性，RabbitMQ和Kafka不支持）  
+② 支持指定次数和时间间隔的失败消息重发  
+③ 支持 Consumer 端 Tag 过滤，减少不必要的网络传输（即过滤由MQ完成，而不是由消费者完成。RabbitMQ 和 Kafka 不支持）  
+④ 支持重复消费（RabbitMQ 不支持，Kafka 支持）
 
-### push模式
-由消息中间件（MQ消息服务器代理）主动地将消息推送给消费者；采用Push方式，可以尽可能实时地将消息发送给消费者进行消费。但是，在消费者的处理消息的能力较弱的时候(比如，
-消费者端的业务系统处理一条消息的流程比较复杂，其中的调用链路比较多导致消费时间比较久。概括起来地说就是“慢消费问题”)，而MQ不断地向消费者Push消息，消费者端的缓冲区可能会溢出，导致异常
+### 概念
+![img.png](images/RocketMQ各角色之间完整的交互过程.png)
 
-# Rocket MQ
-### 消费者与主题的分配关系
-首先是每个consumer实例平均分配queue。然后RocketMQ会将这些Queue再平均分配至属于同一个Group ID的订阅方集群  
+##### 高可用保障
+① NameServer高可用  
+Broker 在启动时向所有 NameServer 注册（主要是服务器地址等） ，生产者在发送消息之前先从NameServer 获取 Broker 服务器地址列表（消费者一样），
+然后根据负载均衡算法从列表中选择一台服务器进行消息发送。NameServer 与每台 Broker 服务保持长连接，并间隔 30S 检查 Broker 是否存活，
+如果检测到Broker 宕机，则从路由注册表中将其移除，这样就可以实现 RocketMQ 的高可用  
 
+② Broker高可用  
+每个Broker与Name Server集群中的所有节点建立长连接，定时(每隔30s)注册Topic信息到所有Name Server。Name Server定时(每隔10s)扫描所有
+存活broker的连接，如果Name Server超过2分钟没有收到心跳，则Name Server断开与Broker的连接  
+
+③ 生产者高可用  
+Producer与NameServer集群中的其中一个节点（随机选择）建立长连接，定期从NameServer取Topic路由信息，并向提供Topic服务的Master建立长连接，
+且定时向Master发送心跳。Producer完全无状态，可集群部署  
+Producer每隔30s（由ClientConfig的pollNameServerInterval）从Name server获取所有topic队列的最新情况，这意味着如果Broker不可用，
+Producer最多30s能够感知，在此期间内发往Broker的所有消息都会失败  
+Producer每隔30s（由ClientConfig中heartbeatBrokerInterval决定）向所有关联的broker发送心跳，Broker每隔10s中扫描所有存活的连接，
+如果Broker在2分钟内没有收到心跳数据，则关闭与Producer的连接  
+
+④ 消费者高可用  
+Consumer与Name Server集群中的其中一个节点(随机选择)建立长连接，定期从Name Server取Topic路由信息，并向提供Topic服务的Master、Slave建立长连接，
+且定时向Master、Slave发送心跳。Consumer既可以从Master订阅消息，也可以从Slave订阅消息，订阅规则由Broker配置决定  
+Consumer每隔30s从Name server获取topic的最新队列情况，这意味着Broker不可用时，Consumer最多最需要30s才能感知  
+Consumer每隔30s（由ClientConfig中heartbeatBrokerInterval决定）向所有关联的broker发送心跳，Broker每隔10s扫描所有存活的连接，
+若某个连接2分钟内没有发送心跳数据，则关闭连接；并向该Consumer Group的所有Consumer发出通知，Group内的Consumer重新分配队列，然后继续消费  
+当Consumer得到master宕机通知后，转向slave消费，slave不能保证master的消息100%都同步过来了，因此会有少量的消息丢失。但是一旦master恢复，
+未同步过去的消息会被最终消费掉
+
+# 消费者消费问题
+### 消息顺序
+顺序消费表示消息消费的顺序和生产者为每个消息队列发送信息时候的顺序一致，所以如果正在处理全局顺序是强制性的场景，需要确保使用的主题只有一个消息队列  
+并行消费不再保证消息顺序，消费的最大并行数量受每个消费者客户端指定的线程池限制
+
+### 消费者数量和队列数量的关系
 ① 如果消费者consumer机器数量和消息队列相等，则消息队列平均分配到每一个consumer上  
 ② 如果consumer数量大于消息队列数量，则超出消息队列数量的机器没有可以处理的消息队列  
 ③ 若消息队列数量不是consumer的整数倍，则部分consumer会承担跟多的消息队列的消费任务  
-
-一定要保证消费端的消费性能高于生产端的发送性能，这样的系统才能健康的持续运行。在扩容consumer的实例数量的同时，必须同步扩容主题中的分区（也叫队列）数量，确保consumer的实例数和
-分区数量是相等的。如果consumer的实例数量超过分区数量，这样的扩容实际上是没有效果的。因为对于消费者来说，在每个分区上实际上只能支持单线程消费  
-
-### 事务消息在一阶段对用户不可见
-首先是，事务消息相对普通消息最大的特点是在一阶段发送的消息对用户是不可见的。那么，如何做到写入消息但是对用户不可见呢？如果是half消息，将备份原消息的主题与消息消费队列，然后改变主题为
-```RMQ_SYS_TRANS_HALF_TOPIC```。由于消费组未订阅该主题，所以消费端无法消费half类型的消息。然后二阶段会显示执行提交或回滚half消息（逻辑删除）。当然为了防止二阶段操作失败，
-RocketMQ会开启一个定时任务，从主题为```RMQ_SYS_TRANS_HALF_TOPIC```中拉取消息进行消费，根据生产组获取一个服务提供者发送回查事务状态请求，根据事务状态来决定是提交或回滚消息。  
-
-RocketMQ的具体实现策略是：写入的如果是事务消息，对消息的Topic和Queue等属性进行替换，同时将原来的Topic和Queue存储到消息的属性中，正因为消息主题被替换，故消息并不会转发到该原
-主题的消息消费队列，消费组无法感知消息的存在，不会消费。其实改变消息主题是RocketMQ的常用套路。
-
-# 事务消息
-事务消息就是用来保证```本地事务```和```MQ消息发送```的原子性  
-
-![img.png](images/事务消息的实现机制.png)
+在扩容consumer实例数量的同时，必须同步扩容主题中的分区数量，确保consumer的实例数和分区数量是相等的  
+如果consumer的实例数量超过分区数量，这样的扩容实际上是没有效果的。因为对于消费者来说，在每个分区上实际上只能支持单线程消费  
 
 # 过滤消息
 
