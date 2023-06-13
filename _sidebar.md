@@ -31,7 +31,7 @@
   * Spring
     * [IOC](基础框架/spring/IOC.md)
     * [AOP](基础框架/spring/AOP.md)
-    * [事务](基础框架/spring/事务.md)
+    * [事务](基础框架/spring/Spring中事务.md)
     * [常用注解](基础框架/spring/常用注解.md)
     * [Spring中设计模式](基础框架/spring/Spring中设计模式.md)
   * SpringBoot
@@ -62,10 +62,10 @@
   * Zookeeper
     * [ZK](常用中间件/zookeeper/zk.md)
 * 多线程
-  * [基本概念](多线程/多线程基础概念.md)
+  * [基础](多线程/基础.md)
   * [JMM](多线程/JMM.md)
   * [JUC](多线程/JUC.md)
-  * [异步编排](JavaWEB/任务管理/异步编排.md)
+  * [线程池原理](多线程/线程池原理.md)
 * 分布式
   * 分布式事务
     * [分布式事务](分布式/分布式事务/分布式事务.md)
