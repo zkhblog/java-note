@@ -21,7 +21,7 @@ multipart/form-data：需要在表单中进行文件上传时，就需要使用�
 
 # get请求
 
-```java
+```
 // ① 加请求头
 // 模拟浏览器
     httpGet.addHeader("User-Agent","Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/107.0.0.0 Safari/537.36");

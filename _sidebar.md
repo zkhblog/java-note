@@ -1,17 +1,18 @@
-* JavaWEB
+* Java基础
   * [基础](JavaWEB/基础.md)
-  * [数据结构](JavaWEB/数据结构.md)
-  * [IO](JavaWEB/IO.md)
   * [集合](JavaWEB/集合.md)
-  * [过滤器](JavaWEB/过滤器.md)
+  * [数据结构](JavaWEB/数据结构.md)
+  * [加密算法](JavaWEB/加密算法.md)
+  * [并发编程](JavaWEB/并发编程.md)
+  * [IO](JavaWEB/IO.md)
   * [httpClient](JavaWEB/httpClient.md)
   * [ThreadLocal](JavaWEB/ThreadLocal.md)
-  * [动态数据源](JavaWEB/动态数据源.md)
+  * [过滤器](JavaWEB/过滤器.md)
+  * [反射机制](JavaWEB/反射机制.md)
+  * [动态代理](JavaWEB/动态代理.md)
   * [日志记录](JavaWEB/日志记录.md)
-  * [正则表达式](JavaWEB/正则表达式.md)
-  * 任务管理
-    * [定时任务](JavaWEB/任务管理/定时任务.md)
-    * [异步任务](JavaWEB/任务管理/异步任务.md)
+  * [定时任务](JavaWEB/任务管理/定时任务.md)
+  * [异步任务](JavaWEB/任务管理/异步任务.md)
   * [设计模式总结](JavaWEB/设计模式总结.md)
 * JVM
     * [堆](JVM/1.堆.md)
@@ -109,8 +110,9 @@
   * [导出百万数据](问题整理/导出百万数据.md)
   * [幂等设计](问题整理/幂等设计.md)
   * [大事务问题](问题整理/大事务问题.md)
-  * [代码优化](JavaWEB/代码优化.md)
+  * [代码优化](问题整理/代码优化.md)
   * [接口优化方案](问题整理/接口优化方案总结.md)
+  * [补偿设计](问题整理/分布式系统中补偿机制设计.md)
 * 高级进阶框架
   * ElasticSearch
     * [DSL](高级进阶框架/elasticsearch/DSL.md)
