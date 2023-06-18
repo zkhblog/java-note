@@ -66,3 +66,40 @@ postProcessBeforeInitialization实现了此机制Bean的功能增强全部是由
 ② 一级可以吗？  
 ③ 是否可以关闭循环依赖？  
 ④ 为什么要用三级缓存，用二级缓存可以吗？
+
+# BeanFactory和ApplicationContext的异同
+相同：
+- Spring提供了两种不同的IOC 容器，一个是BeanFactory，另外一个是ApplicationContext，它们都是Java  interface，ApplicationContext继承于BeanFactory(ApplicationContext继承ListableBeanFactory。
+- 它们都可以用来配置XML属性，也支持属性的自动注入。
+- 而ListableBeanFactory继承BeanFactory)，BeanFactory 和 ApplicationContext 都提供了一种方式，使用getBean("bean name")获取bean。
+
+不同：
+- 当你调用getBean()方法时，BeanFactory仅实例化bean，而ApplicationContext 在启动容器的时候实例化单例bean，不会等待调用getBean()方法时再实例化。
+- BeanFactory不支持国际化，即i18n，但ApplicationContext提供了对它的支持。
+- BeanFactory与ApplicationContext之间的另一个区别是能够将事件发布到注册为监听器的bean。
+- BeanFactory 的一个核心实现是XMLBeanFactory 而ApplicationContext  的一个核心实现是ClassPathXmlApplicationContext，Web容器的环境我们使用WebApplicationContext并且增加了getServletContext 方法。
+- 如果使用自动注入并使用BeanFactory，则需要使用API注册AutoWiredBeanPostProcessor，如果使用ApplicationContext，则可以使用XML进行配置。
+- 简而言之，BeanFactory提供基本的IOC和DI功能，而ApplicationContext提供高级功能，BeanFactory可用于测试和非生产使用，但ApplicationContext是功能更丰富的容器实现，应该优于BeanFactory
+
+# 简述Spring中Bean的生命周期
+1 实例化Bean对象：通过反射的方式进行对象的创建，此时的创建只是在堆空间中申请空间，属性都是默认值  
+2 设置对象属性：给对象中的属性设值  
+3 检查Aware相关接口并设置相关依赖：如果对象中需要引用容器内部的对象，那么需要调用aware接口的子类方法来进行统一的设置  
+4 BeanPostProcessor的前置工作：对生成的Bean对象进行前置的处理工作  
+5 检查是否是InitialingBean的子类来决定是否调用afterPropertiesSet方法：判断当前Bean对象是否设置了InitialingBean接口，然后进行属性的设值等基本工作  
+6 检查是否配置有自定义的init-method方法：如果当前Bean对象定义了初始化方法，那么在此处调用初始化方法  
+7 BeanPostProcessor后置处理：对生成的Bean对象进行后置的处理工作  
+8 注册必要的Destruction相关回调接口：为了方便对象的销毁，在此处调用注销的回调接口，方便对象进行销毁操作  
+9 获取并使用Bean对象：通过容器来获取对象并进行使用  
+10 是否实现DisposableBean接口：判断是否实现了DisposableBean接口，并调用具体的方法来进行对象的销毁工作  
+11 是否配置有自定义的destroy方法：如果当前Bean对象定义了销毁方法，那么在此处调用销毁方法
+
+# Spring中单例Bean是线程安全的吗？
+Spring中的Bean对象默认是单例的，框架并没有对Bean进行多线程的封装处理  
+如果Bean是有状态（即有数据存储的能力）的，那么需要开发人员自己保证线程安全，最简单的办法就是改变Bean的作用域把singleton改成prototype，
+这样每次请求Bean对象就相当于是创建新的对象来保证线程的安全  
+如果Bean是无状态（即不会存储数据）的，比如controller、service、dao本身并不是线程安全的，只是调用里面的方法，而且多线程调用一个实例的方法，
+会在内存中复制遍历，这是自己线程的工作内存，是最安全的  
+因此在进行使用的时候，不要在Bean中声明任何有状态的实例变量或者类变量，如果必须如此，也推荐大家使用ThreadLocal把变量变成线程私有，
+如果Bean的实例变量或者类变量需要在多个线程之间共享，那么就只能使用synchronized、lock、cas等这些实现线程同步的方法了
+

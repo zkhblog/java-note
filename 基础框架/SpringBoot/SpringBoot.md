@@ -138,6 +138,11 @@ RequestMappingHandlerAdapter：保存了适配Handler的适配器，便于执行
 
 # WEB原生组件注入
 
+# 如何理解SpringBoot中的starter
+使用Spring + SpringMVC开发很麻烦，引入其他组件的功能，需要在xml中定义Bean对象，进行复杂的配置  
+在SpringBoot中引入starter，starter就是一个jar包，在其中写一个@Configuration的配置类，将这些Bean定义其中，然后在starter包的
+META-INF/spring.factories中写入配置类，那么SpringBoot程序在启动的时候就会按照约束来加载该配置类  
+使用的时候，开发人员只需要将相应的starter包依赖进应用中，进行相关的属性配置，就可以进行代码开发，而不需要单独进行Bean对象的配置
 
 # WEB开发定制化常见方式
 
