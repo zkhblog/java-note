@@ -5,7 +5,7 @@
   * [加密算法](JavaWEB/加密算法.md)
   * [并发编程](JavaWEB/并发编程.md)
   * [IO](JavaWEB/IO.md)
-  * [httpClient](JavaWEB/httpClient.md)
+  * [httpClient](JavaWEB/rpc和http.md)
   * [ThreadLocal](JavaWEB/ThreadLocal.md)
   * [过滤器](JavaWEB/过滤器.md)
   * [反射机制](JavaWEB/反射机制.md)
@@ -14,7 +14,7 @@
   * [定时任务](JavaWEB/任务管理/定时任务.md)
   * [异步任务](JavaWEB/任务管理/异步任务.md)
   * [异步编排](JavaWEB/任务管理/异步编排.md)
-  * [设计模式总结](JavaWEB/设计模式总结.md)
+  * [设计模式总结](JavaWEB/设计模式.md)
 * JVM
     * [堆](JVM/1.堆.md)
     * [运行时数据区](JVM/2.运行时数据区.md)
@@ -45,7 +45,7 @@
     * [SpringSecurityOauth2](基础框架/springSecurity/Spring-Security-OAuth2.md)
     * [SpringSecurity](基础框架/springSecurity/SpringSecurity.md)
   * SpringCloud
-    * [SpringCloud](分布式/分布式系统概念.md)
+    * [SpringCloud](分布式/分布式系统.md)
 * 消息队列
   * [KafKa](消息队列/kafka.md)
   * [RabbitMQ](消息队列/rabbitmq.md)
@@ -64,9 +64,9 @@
     * [ZK](常用中间件/zookeeper/zk.md)
 * 多线程
   * [基础](多线程/基础.md)
-  * [JMM](多线程/JMM.md)
   * [JUC](多线程/JUC.md)
   * [线程池原理](多线程/线程池原理.md)
+  * [并发包常见类](多线程/并发包常见类.md)
 * 分布式
   * 分布式事务
     * [分布式事务](分布式/分布式事务/分布式事务.md)
