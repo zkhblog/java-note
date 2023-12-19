@@ -1,5 +1,15 @@
 # 基础特性
 ## 消息应答
+> 生产者客户端发送出去之后可能发生网络丢包、网络故障等造成消息丢失
+> 生产者将信道设置成confirm模式。一旦信道进入confirm模式，所有在该信道上面发布的消息都会被指派一个唯一的id，一旦消息被投递到所有匹配的队列之后，RabbitMQ就会发送一个确认(Basic.ACK)
+> 给生产者（包含消息的唯一id），这就使得生产者知晓消息已经正确到达目的地了。RabbitMQ回传给生产者的确认消息中的deliveryTag包含了确认消息的序号，此外RabbitMQ也可以设置
+> channel.basicACK()中的multiple参数，表示这个序号之前的所有消息都已经得到了处理
+>
+> 客户端实现生产者confirm有三种方式  
+> ① 普通confirm模式：每发送一条消息后，调用waitForConfirms()方法，等待服务器端confirm。实际上是一种串行的confirm了  
+> ② 批量confirm模式：每发送一条消息后，调用waitForConfirms()方法，等待服务器端confirm  
+> ③ 异步confirm模式：提供一个回调方法，服务端confirm了一条或者多条消息后client端会回调这个方法
+
 1、消费者在接收到消息并处理后，告诉rabbitmq它已经处理了，rabbitmq可以把该消息删除了。  
 2、消息应答的方法 用于肯定确认： channel.basicAck(deliveryTag,multiple)。
 multiple的true代表批量应答channel上未应答的消息，false代表只应答指定tag的消息。  

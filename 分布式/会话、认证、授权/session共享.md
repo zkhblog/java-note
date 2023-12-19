@@ -13,7 +13,7 @@ tomcat原生支持。但是任意一台web服务器保存的数据都是所有we
 如果web服务器水平扩展，rehash后session可能重新分布，会导致有一部分用户路由不到之前的服务  
 
 ### 统一存储
-![img.png](images/分布式下session共享问题.png)
+![img.png](../images/分布式下session共享问题.png)
 
 # SpringSession原理
 1 ```@EnableRedisHttpSession```给容器中导入```RedisHttpSessionConfiguration```  
@@ -23,10 +23,3 @@ tomcat原生支持。但是任意一台web服务器保存的数据都是所有we
 从包装对象里获取session，而从包装对象里获取session其实是通过```SessionRepository```从redis中获取  
 
 5 因为redis中的数据是有过期时间的，所以SpringSession其实也实现了自动续期功能
-
-# 单点登录问题
-![img.png](images/多域名场景下session共享问题.png)
-
-单点登录方案：  
-![img.png](images/SSO.png)
-
