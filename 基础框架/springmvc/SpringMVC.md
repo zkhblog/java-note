@@ -1,4 +1,9 @@
+# SPI机制
+
+SPI机制是JDK内置的服务提供发现机制。Tomcat利用这个机制实现了读取指定接口（ServletContainerInitializer）的所有实现，然后调用onStartup()，这是Tomcat和Spring整合的入口。
+
 # SpringMVC工作流程
+
 当发起请求时被前置的控制器拦截到请求，根据请求参数生成代理请求，找到请求对应的实际控制器，控制器处理请求，创建数据模型，访问数据库，将模型响应给
 中心控制器，控制器使用模型与视图渲染视图结果，将结果返回给中心控制器，再将结果返回给请求者  
 1 DispatcherServlet表示前置控制器，是整个SpringMVC的控制中心。用户发出请求，DispatcherServlet接收请求并拦截请求  
