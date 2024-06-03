@@ -21,7 +21,10 @@
 ① OAuth2.0包含以下角色：客户端、资源拥有者、授权服务器（也称为认证服务器）、资源服务器  
 ② 除了校验用户信息是否合法，还会校验客户端信息（即client_id和client_secret）  
 
+![img.png](images/Oauth2的模式选择.png)
+
 # Spring Security中增加OAuth2协议授权模式
+
 ### 整个授权流程的关键点如下两部分
 第一部分： 关于授权类型```grant_type```的解析  
 ① 每种```grant_type```都会有一个对应的```TokenGranter```实现类  
