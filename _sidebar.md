@@ -20,9 +20,8 @@
     * [运行时数据区](JVM/2.运行时数据区.md)
     * [String相关](JVM/3.String相关.md)
     * [垃圾回收](JVM/4.垃圾回收.md)
-    * [性能监控与调优](JVM/5.性能监控与调优.md)
-    * [性能调优记录](JVM/6.性能调优记录.md)
-    * [类加载子系统](JVM/7.类加载子系统.md)
+    * [性能监控与调优](JVM/5.类加载.md)
+    * [性能调优记录](JVM/6.性能调优.md)
 * 基础框架
   * MyBatis
     * [MyBatisPlus](基础框架/mybatis/MyBatisPlus.md)
@@ -44,13 +43,6 @@
     * [权限认证基础](基础框架/springSecurity/权限认证.md)
     * [SpringSecurityOauth2](基础框架/springSecurity/Spring-Security-OAuth2.md)
     * [SpringSecurity](基础框架/springSecurity/SpringSecurity.md)
-  * SpringCloud
-    * [SpringCloud](分布式/分布式系统.md)
-* 消息队列
-  * [KafKa](消息队列/kafka.md)
-  * [RabbitMQ](消息队列/rabbitmq.md)
-  * [RocketMQ](消息队列/rocketmq.md)
-  * [常见问题及思路](消息队列/常见问题及思路.md)
 * 中间件
   * MyCat
     * [MyCat](常用中间件/mycat/myCat.md)
@@ -62,26 +54,35 @@
     * [集群方案](常用中间件/redis/redis集群方案.md)
   * Zookeeper
     * [ZK](常用中间件/zookeeper/zk.md)
-* 多线程
-  * [基础](多线程/1 基础.md)
-  * [并发包常见类](多线程/2 JUC.md)
-  * [线程池原理](多线程/3 线程池相关.md)
-* 分布式
+  * MQ
+    * [常见问题及思路](常用中间件/mq/常见问题及思路.md)
+    * [消息队列基础.md](常用中间件/mq/消息队列基础.md)
+    * [KafKa](常用中间件/mq/kafka.md)
+    * [RabbitMQ](常用中间件/mq/rabbitmq.md)
+    * [RocketMQ](常用中间件/mq/rocketmq.md)
+  * ElasticSearch
+    * [DSL基础](常用中间件/elasticsearch/DSL基础.md)
+    * [DSL示例](常用中间件/elasticsearch/DSL示例.md)
+    * [控制相关度](常用中间件/elasticsearch/控制相关度.md)
+* 并发编程
+  * [基础](并发编程/基础.md)
+  * [实际应用](并发编程/实际应用.md)
+  * [线程池](并发编程/线程池.md)
+* 微服务
   * 分布式事务
-    * [分布式事务](分布式/分布式事务/分布式事务.md)
-    * [```seata```](分布式/分布式事务/seata.md)
-  * [分布式锁](分布式/分布式锁/分布式锁.md)
+    * [分布式事务](微服务/分布式事务/分布式事务.md)
+    * [```seata```](微服务/分布式事务/seata.md)
+  * [分布式锁](微服务/分布式锁/分布式锁.md)
   * 分库分表
-    * [分库分表](分布式/分库分表/分库分表.md)
+    * [分库分表](微服务/分库分表/分库分表.md)
   * 注册中心
-    * [Eureka](分布式/注册和配置/eureka.md)
-    * [```Nacos```](分布式/注册和配置/nacos.md)
+    * [Eureka](微服务/注册和配置/eureka.md)
+    * [```Nacos```](微服务/注册和配置/nacos.md)
   * 熔断降级
-    * [sentinel](分布式/熔断降级/sentinel.md)
-    * [hystrix](分布式/熔断降级/Hystrix.md)
-  * [分布式session](分布式/会话、认证、授权/session共享.md)
+    * [sentinel](微服务/熔断降级/sentinel.md)
+    * [hystrix](微服务/熔断降级/Hystrix.md)
   * 网关
-    * [GateWay](分布式/网关/服务网关.md)
+    * [GateWay](微服务/服务网关/网关.md)
 * 前端开发知识点
   * [CSS](前端开发/CSS.md)
   * [ES6](前端开发/ES6.md)
@@ -114,14 +115,6 @@
   * [接口优化方案](问题整理/接口优化方案总结.md)
   * [补偿设计](问题整理/分布式系统中补偿机制设计.md)
   * [延迟任务](问题整理/延迟任务.md)
-* 高级进阶框架
-  * ElasticSearch
-    * [DSL](高级进阶框架/elasticsearch/DSL.md)
-    * [基础](高级进阶框架/elasticsearch/ES基础.md)
-    * [控制相关度](高级进阶框架/elasticsearch/控制相关度.md)
-    * [新增字段操作](高级进阶框架/elasticsearch/新增字段操作.md)
-    * [深度分页](高级进阶框架/elasticsearch/深度分页.md)     
-    * [嵌套文档](高级进阶框架/elasticsearch/实现嵌套json查询/嵌套文档.md)
 * 算法
   * [经典限流算法](算法/限流算法总结.md)
 * 读书笔记
